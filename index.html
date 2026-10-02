@@ -5,6 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#181818">
   <meta name="description" content="Hussain Compiler is a lightweight Python IDE that runs in your browser.">
+  
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="Hussain Compiler">
+  <meta property="og:description" content="Browser-based Python IDE powered by Pyodide.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://hussainalsari.github.io/hussain-py-compiler/">
+  <meta property="og:image" content="https://raw.githubusercontent.com/HussainAlsari/hussain-py-compiler/main/assets/hussain-compiler-cover.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Hussain Compiler">
+  <meta name="twitter:description" content="Browser-based Python IDE powered by Pyodide.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/HussainAlsari/hussain-py-compiler/main/assets/hussain-compiler-cover.jpg">
+  
   <title>Hussain Compiler</title>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -101,6 +117,11 @@
       </div>
     </header>
 
+    <!-- Hero Banner with Cover Image -->
+    <div class="hero-banner">
+      <img src="./assets/hussain-compiler-cover.jpg" alt="Hussain Compiler - Browser-based Python IDE">
+    </div>
+
     <div class="workspace" id="workspace">
       <nav class="activity-bar" aria-label="Activity bar">
         <button class="activity-button active" id="explorerBtn" type="button" title="Explorer" aria-label="Explorer">▤</button>
@@ -166,7 +187,7 @@
         <section class="output-panel" aria-label="Terminal">
           <div class="output-header">
             <div class="panel-tabs"><button class="panel-tab active" type="button">TERMINAL</button><span class="terminal-profile">Python WebAssembly</span></div>
-            <div class="output-actions"><span id="runState">Ready</span><button class="text-button" id="downloadOutputImageBtn" type="button" title="Download input and output as a PNG image">Save PNG</button><button class="text-button" id="clearOutputBtn" type="button" title="Clear Terminal">Clear</button></div>
+            <div class="output-actions"><span id="runState">Ready</span><button class="text-button" id="downloadOutputImageBtn" type="button" title="Download input and output as a PNG image">Save as Image</button></div>
           </div>
           <div class="console" id="console" role="log" aria-live="polite" aria-label="Python terminal. Type here when the program requests input." tabindex="0">
             <div class="welcome-line"><span class="console-prompt">›</span> Python runs in your browser. Type in this terminal when your program calls <b>input()</b>.</div>
