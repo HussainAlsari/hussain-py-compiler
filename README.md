@@ -11,6 +11,7 @@ Hussain Compiler is a lightweight, browser-based Python IDE with a VS Code-inspi
 - Run Python programs in a Web Worker. `input()` requests appear directly in the terminal; type there and press Enter.
 - Start the Python runtime in the background as you begin typing, with status updates while Python and imported packages load.
 - Multiple workspace files, file import, local browser storage, and file download.
+- Export the active Python input and terminal output together as a styled PNG image.
 - Install packages with `micropip` and load packages supported by Pyodide when imported.
 - Responsive VS Code-inspired dark interface.
 

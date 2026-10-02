@@ -8,7 +8,7 @@ const elements = Object.fromEntries([
   "fileList", "newFileBtn", "openFilesBtn", "filePicker", "saveBtn", "downloadBtn",
   "runBtn", "stopBtn", "deleteFileBtn", "activeFileName", "dirtyMark", "saveState",
   "runtimeStatus", "statusDot", "pythonVersion", "cursorPosition", "console", "runState",
-  "clearOutputBtn", "packageForm", "packageName", "installBtn", "toast", "workspace",
+  "clearOutputBtn", "downloadOutputImageBtn", "packageForm", "packageName", "installBtn", "toast", "workspace",
   "mainPanel", "explorerBtn", "searchBtn", "runActivityBtn", "extensionsBtn", "aboutBtn",
   "rootNewFileBtn", "rootOpenFilesBtn", "windowTitle", "breadcrumbFileName", "toggleWordWrapItem",
   "settingsDialog", "settingsCloseBtn", "settingsDoneBtn", "autoCloseBracketsSetting", "fontSizeSetting", "fontSizeValue",
@@ -103,6 +103,120 @@ function appendOutput(text, kind = "") {
   line.textContent = text;
   elements.console.append(line);
   elements.console.scrollTop = elements.console.scrollHeight;
+}
+
+async function downloadInputOutputImage() {
+  const width = 1280;
+  const scale = 1.5;
+  const padding = 48;
+  const contentWidth = width - padding * 2;
+  const font = '15px Consolas, "Courier New", monospace';
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) {
+    showToast("Could not create the PNG image.", true);
+    return;
+  }
+  context.font = font;
+
+  const wrapText = (text) => {
+    const wrapped = [];
+    for (const sourceLine of String(text).split("\n")) {
+      if (!sourceLine) {
+        wrapped.push("");
+        continue;
+      }
+      let line = "";
+      for (const character of sourceLine) {
+        if (line && context.measureText(line + character).width > contentWidth) {
+          wrapped.push(line);
+          line = "";
+        }
+        line += character;
+      }
+      wrapped.push(line);
+    }
+    return wrapped;
+  };
+
+  const sections = [{ title: `INPUT · ${activeFile || "main.py"}`, color: "#75beff", lines: wrapText(editor?.getValue() || "") }, {
+    title: "OUTPUT · TERMINAL",
+    color: "#75beff",
+    lines: [...elements.console.children].flatMap((node) => {
+      const text = node.innerText ?? node.textContent ?? "";
+      const isWelcome = node.classList.contains("welcome-line");
+      const lineColor = node.classList.contains("error") ? "#f48771" :
+        node.classList.contains("system") || isWelcome ? "#a0a0a0" : "#d4d4d4";
+      return wrapText(text).map((line) => ({ text: line, color: lineColor }));
+    }),
+  }];
+
+  const lineHeight = 23;
+  const sectionGap = 27;
+  const headerHeight = 122;
+  const maxLines = 700;
+  let rows = 0;
+  for (const section of sections) {
+    section.rendered = section.lines.map((line) => typeof line === "string"
+      ? { text: line, color: "#d4d4d4" }
+      : line);
+    if (rows + section.rendered.length > maxLines) {
+      const availableLines = Math.max(0, maxLines - rows - 1);
+      section.rendered = availableLines ? section.rendered.slice(-availableLines) : [];
+      if (rows < maxLines) section.rendered.unshift({ text: "… earlier lines omitted to keep the image size manageable …", color: "#858585" });
+    }
+    rows += section.rendered.length;
+  }
+
+  const height = Math.min(20000, headerHeight + sections.reduce((sum, section) => sum + sectionGap + (section.rendered.length + 1) * lineHeight, 0) + padding);
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+  context.scale(scale, scale);
+  context.fillStyle = "#1e1e1e";
+  context.fillRect(0, 0, width, height);
+  context.fillStyle = "#252526";
+  context.fillRect(0, 0, width, 68);
+  context.fillStyle = "#ffffff";
+  context.font = '600 20px Arial, sans-serif';
+  context.fillText("Hussain Compiler", padding, 39);
+  context.fillStyle = "#aaaaaa";
+  context.font = '14px Arial, sans-serif';
+  context.fillText("Python input and output", padding, 57);
+  context.fillStyle = "#858585";
+  context.textAlign = "right";
+  context.fillText(new Date().toLocaleString(), width - padding, 39);
+  context.textAlign = "left";
+
+  let y = headerHeight;
+  context.font = font;
+  for (const section of sections) {
+    context.fillStyle = section.color;
+    context.font = '600 14px Arial, sans-serif';
+    context.fillText(section.title, padding, y);
+    y += sectionGap;
+    context.font = font;
+    for (const line of section.rendered) {
+      if (y > height - padding) break;
+      context.fillStyle = line.color;
+      context.fillText(line.text, padding, y);
+      y += lineHeight;
+    }
+    y += lineHeight;
+  }
+
+  try {
+    const blob = await new Promise((resolve, reject) => canvas.toBlob((image) => image ? resolve(image) : reject(new Error("PNG encoding failed")), "image/png"));
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const baseName = (activeFile || "main.py").split("/").pop().replace(/\.py$/i, "") || "python";
+    link.href = url;
+    link.download = `${baseName}-input-output.png`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast("Input and output saved as a PNG image.");
+  } catch (error) {
+    showToast(`Could not download image: ${error.message}`, true);
+  }
 }
 
 function safeFileName(name) {
@@ -728,6 +842,7 @@ elements.runBtn.addEventListener("click", runCode);
 elements.stopBtn.addEventListener("click", stopExecution);
 elements.deleteFileBtn.addEventListener("click", deleteCurrentFile);
 elements.clearOutputBtn.addEventListener("click", () => elements.console.replaceChildren());
+elements.downloadOutputImageBtn.addEventListener("click", downloadInputOutputImage);
 elements.packageForm.addEventListener("submit", installPackage);
 elements.console.addEventListener("keydown", submitTerminalInput);
 elements.console.addEventListener("click", handleTerminalClick);
