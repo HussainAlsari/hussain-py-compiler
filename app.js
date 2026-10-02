@@ -1,6 +1,6 @@
 const STORAGE_KEY = "hussain-compiler-workspace-v1";
 const SETTINGS_KEY = "hussain-compiler-settings-v1";
-const DEFAULT_SETTINGS = { autoCloseBrackets: true, fontSize: 13 };
+const DEFAULT_SETTINGS = { autoCloseBrackets: true, fontSize: 13, terminalFontSize: 12, terminalTextColor: "#cccccc", terminalBackgroundColor: "#181818" };
 const SAMPLE = `# Welcome to Hussain Compiler\n# Write Python here, then click Run Python\n\ndef greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("Python"))\n`;
 const PACKAGE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*(?:\[[A-Za-z0-9_,.-]+\])?(?:(?:===|==|~=|!=|<=|>=|<|>)\s*[A-Za-z0-9.*+_-]+(?:,(?:===|==|~=|!=|<=|>=|<|>)\s*[A-Za-z0-9.*+_-]+)*)?$/;
 
@@ -12,6 +12,8 @@ const elements = Object.fromEntries([
   "mainPanel", "explorerBtn", "searchBtn", "runActivityBtn", "extensionsBtn", "aboutBtn",
   "rootNewFileBtn", "rootOpenFilesBtn", "windowTitle", "breadcrumbFileName", "toggleWordWrapItem",
   "settingsDialog", "settingsCloseBtn", "settingsDoneBtn", "autoCloseBracketsSetting", "fontSizeSetting", "fontSizeValue",
+  "terminalFontSizeSetting", "terminalFontSizeValue", "terminalTextColorSetting", "terminalBackgroundColorSetting",
+  "outputPanel", "panelResizer", "sidebarResizer"
 ].map((id) => [id, document.getElementById(id)]));
 
 let savedActiveFile = null;
@@ -38,6 +40,9 @@ function readSettings() {
     return {
       autoCloseBrackets: typeof saved?.autoCloseBrackets === "boolean" ? saved.autoCloseBrackets : DEFAULT_SETTINGS.autoCloseBrackets,
       fontSize: Number.isInteger(saved?.fontSize) ? Math.min(24, Math.max(10, saved.fontSize)) : DEFAULT_SETTINGS.fontSize,
+      terminalFontSize: Number.isInteger(saved?.terminalFontSize) ? Math.min(22, Math.max(10, saved.terminalFontSize)) : DEFAULT_SETTINGS.terminalFontSize,
+      terminalTextColor: typeof saved?.terminalTextColor === "string" ? saved.terminalTextColor : DEFAULT_SETTINGS.terminalTextColor,
+      terminalBackgroundColor: typeof saved?.terminalBackgroundColor === "string" ? saved.terminalBackgroundColor : DEFAULT_SETTINGS.terminalBackgroundColor,
     };
   } catch (_) {
     return { ...DEFAULT_SETTINGS };
@@ -644,8 +649,15 @@ function applyEditorSettings() {
   if (!editor) return;
   editor.setOption("autoCloseBrackets", settings.autoCloseBrackets);
   editor.getWrapperElement().style.fontSize = `${settings.fontSize}px`;
+  document.documentElement.style.setProperty("--terminal-font-size", `${settings.terminalFontSize}px`);
+  document.documentElement.style.setProperty("--terminal-text-color", settings.terminalTextColor);
+  document.documentElement.style.setProperty("--terminal-bg", settings.terminalBackgroundColor);
   elements.fontSizeValue.value = `${settings.fontSize} px`;
   elements.fontSizeValue.textContent = `${settings.fontSize} px`;
+  elements.terminalFontSizeValue.value = `${settings.terminalFontSize} px`;
+  elements.terminalFontSizeValue.textContent = `${settings.terminalFontSize} px`;
+  elements.terminalTextColorSetting.value = settings.terminalTextColor;
+  elements.terminalBackgroundColorSetting.value = settings.terminalBackgroundColor;
   editor.refresh();
 }
 
@@ -658,6 +670,11 @@ function initSettings() {
   elements.fontSizeSetting.value = String(settings.fontSize);
   elements.fontSizeValue.value = `${settings.fontSize} px`;
   elements.fontSizeValue.textContent = `${settings.fontSize} px`;
+  elements.terminalFontSizeSetting.value = String(settings.terminalFontSize);
+  elements.terminalFontSizeValue.value = `${settings.terminalFontSize} px`;
+  elements.terminalFontSizeValue.textContent = `${settings.terminalFontSize} px`;
+  elements.terminalTextColorSetting.value = settings.terminalTextColor;
+  elements.terminalBackgroundColorSetting.value = settings.terminalBackgroundColor;
   elements.autoCloseBracketsSetting.addEventListener("change", () => {
     settings.autoCloseBrackets = elements.autoCloseBracketsSetting.checked;
     applyEditorSettings();
@@ -668,12 +685,89 @@ function initSettings() {
     applyEditorSettings();
   });
   elements.fontSizeSetting.addEventListener("change", saveSettings);
+  elements.terminalFontSizeSetting.addEventListener("input", () => {
+    settings.terminalFontSize = Number(elements.terminalFontSizeSetting.value);
+    applyEditorSettings();
+  });
+  elements.terminalFontSizeSetting.addEventListener("change", saveSettings);
+  elements.terminalTextColorSetting.addEventListener("input", () => {
+    settings.terminalTextColor = elements.terminalTextColorSetting.value;
+    applyEditorSettings();
+    saveSettings();
+  });
+  elements.terminalBackgroundColorSetting.addEventListener("input", () => {
+    settings.terminalBackgroundColor = elements.terminalBackgroundColorSetting.value;
+    applyEditorSettings();
+    saveSettings();
+  });
   const close = () => elements.settingsDialog.close();
   elements.settingsCloseBtn.addEventListener("click", close);
   elements.settingsDoneBtn.addEventListener("click", close);
   elements.settingsDialog.addEventListener("click", (event) => {
     if (event.target === elements.settingsDialog) close();
   });
+}
+
+function setSidebarWidth(width) {
+  const clamped = Math.min(Math.max(width, 180), 360);
+  document.documentElement.style.setProperty("--sidebar-width", `${clamped}px`);
+}
+
+function initResizers() {
+  if (elements.sidebarResizer) {
+    let resizingSidebar = false;
+    let startX = 0;
+    let startWidth = 0;
+
+    elements.sidebarResizer.addEventListener("pointerdown", (event) => {
+      if (elements.workspace.classList.contains("sidebar-collapsed")) return;
+      resizingSidebar = true;
+      startX = event.clientX;
+      startWidth = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sidebar-width")) || 244;
+      elements.sidebarResizer.setPointerCapture?.(event.pointerId);
+    });
+
+    elements.sidebarResizer.addEventListener("pointermove", (event) => {
+      if (!resizingSidebar) return;
+      const delta = event.clientX - startX;
+      setSidebarWidth(startWidth + delta);
+    });
+
+    const stopSidebarDrag = () => {
+      resizingSidebar = false;
+    };
+    elements.sidebarResizer.addEventListener("pointerup", stopSidebarDrag);
+    elements.sidebarResizer.addEventListener("pointercancel", stopSidebarDrag);
+    document.addEventListener("pointerup", stopSidebarDrag);
+  }
+
+  if (elements.panelResizer) {
+    let draggingPanel = false;
+    let startY = 0;
+    let startHeight = 180;
+
+    elements.panelResizer.addEventListener("pointerdown", (event) => {
+      if (elements.mainPanel.classList.contains("panel-hidden")) return;
+      draggingPanel = true;
+      startY = event.clientY;
+      startHeight = elements.outputPanel?.offsetHeight || 180;
+      elements.panelResizer.setPointerCapture?.(event.pointerId);
+    });
+
+    elements.panelResizer.addEventListener("pointermove", (event) => {
+      if (!draggingPanel) return;
+      const delta = event.clientY - startY;
+      const nextHeight = Math.min(Math.max(startHeight + delta, 120), 400);
+      elements.mainPanel.style.gridTemplateRows = `36px minmax(0, 1fr) 8px ${nextHeight}px`;
+    });
+
+    const stopPanelDrag = () => {
+      draggingPanel = false;
+    };
+    elements.panelResizer.addEventListener("pointerup", stopPanelDrag);
+    elements.panelResizer.addEventListener("pointercancel", stopPanelDrag);
+    document.addEventListener("pointerup", stopPanelDrag);
+  }
 }
 
 function runCommand(command) {
@@ -858,4 +952,28 @@ window.addEventListener("beforeunload", saveWorkspace);
 initMenus();
 initShortcuts();
 initSettings();
+initResizers();
 initEditor();
+
+if (!document.getElementById("clearOutputBtn")) {
+  const clearTerminalButton = document.createElement("button");
+  clearTerminalButton.id = "clearOutputBtn";
+  clearTerminalButton.type = "button";
+  clearTerminalButton.className = "text-button";
+  clearTerminalButton.textContent = "Clear";
+  clearTerminalButton.title = "Clear terminal";
+  clearTerminalButton.addEventListener("click", () => elements.console.replaceChildren());
+  const outputActions = document.querySelector(".output-actions");
+  outputActions?.appendChild(clearTerminalButton);
+}
+
+if (elements.console) {
+  elements.console.style.fontSize = `${settings.terminalFontSize}px`;
+}
+
+setSidebarWidth(parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sidebar-width")) || 244);
+if (elements.mainPanel && !elements.mainPanel.classList.contains("panel-hidden")) {
+  elements.mainPanel.style.gridTemplateRows = "36px minmax(0, 1fr) 8px 180px";
+}
+
+applyEditorSettings();

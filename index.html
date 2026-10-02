@@ -134,6 +134,7 @@
           <p class="package-hint">Packages that require native system extensions may not run in WebAssembly.</p>
         </section>
         <div class="storage-note"><span class="storage-icon">●</span> Stored in this browser</div>
+        <div class="sidebar-resizer" id="sidebarResizer" aria-hidden="true"></div>
       </aside>
 
       <main class="main-panel" id="mainPanel">
@@ -157,16 +158,18 @@
         <section class="editor-stage" aria-label="Code editor">
           <div class="editor-tabbar">
             <div class="active-file-tab"><span class="python-file-icon">Py</span><span id="activeFileName">main.py</span><i id="dirtyMark" class="dirty-mark" hidden></i></div>
-            <div class="editor-actions"><span id="saveState">Saved</span><button class="icon-button small" id="deleteFileBtn" type="button" title="Delete Current File" aria-label="Delete Current File">×</button></div>
+            <div class="editor-actions"><span id="saveState">Saved</span><button class="icon-button small" id="deleteFileBtn" type="button" title="Delete Current File" aria-label="Delete Current File">⌫</button></div>
           </div>
           <div class="editor-wrap"><textarea id="code" aria-label="Python code editor"></textarea></div>
           <div class="editor-footer"><span id="cursorPosition">Ln 1, Col 1</span><span>Python&nbsp; · &nbsp;UTF-8&nbsp; · &nbsp;Spaces: 4</span></div>
         </section>
 
-        <section class="output-panel" aria-label="Terminal">
+        <div class="panel-resizer" id="panelResizer" aria-hidden="true"></div>
+
+        <section class="output-panel" id="outputPanel" aria-label="Terminal">
           <div class="output-header">
             <div class="panel-tabs"><button class="panel-tab active" type="button">TERMINAL</button><span class="terminal-profile">Python WebAssembly</span></div>
-            <div class="output-actions"><span id="runState">Ready</span><button class="text-button" id="downloadOutputImageBtn" type="button" title="Download input and output as a PNG image">Save PNG</button><button class="text-button" id="clearOutputBtn" type="button" title="Clear Terminal">Clear</button></div>
+            <div class="output-actions"><span id="runState">Ready</span><button class="text-button" id="downloadOutputImageBtn" type="button" title="Download input and output as a PNG image">Save PNG</button></div>
           </div>
           <div class="console" id="console" role="log" aria-live="polite" aria-label="Python terminal. Type here when the program requests input." tabindex="0">
             <div class="welcome-line"><span class="console-prompt">›</span> Python runs in your browser. Type in this terminal when your program calls <b>input()</b>.</div>
@@ -193,6 +196,18 @@
       <label class="setting-row font-setting" for="fontSizeSetting">
         <span><strong>Editor font size</strong><small>Adjust how large code appears in the editor.</small></span>
         <span class="font-size-control"><input id="fontSizeSetting" type="range" min="10" max="24" step="1" value="13"><output id="fontSizeValue" for="fontSizeSetting">13 px</output></span>
+      </label>
+      <label class="setting-row font-setting" for="terminalFontSizeSetting">
+        <span><strong>Terminal font size</strong><small>Adjust how large the terminal text appears.</small></span>
+        <span class="font-size-control"><input id="terminalFontSizeSetting" type="range" min="10" max="22" step="1" value="12"><output id="terminalFontSizeValue" for="terminalFontSizeSetting">12 px</output></span>
+      </label>
+      <label class="setting-row color-setting" for="terminalTextColorSetting">
+        <span><strong>Terminal text color</strong><small>Change the terminal text color to match your preference.</small></span>
+        <input id="terminalTextColorSetting" type="color" value="#cccccc" aria-label="Terminal text color">
+      </label>
+      <label class="setting-row color-setting" for="terminalBackgroundColorSetting">
+        <span><strong>Terminal background color</strong><small>Pick the background color used in the terminal panel.</small></span>
+        <input id="terminalBackgroundColorSetting" type="color" value="#181818" aria-label="Terminal background color">
       </label>
       <div class="settings-footer"><span>Preferences are saved in this browser.</span><button class="settings-done" id="settingsDoneBtn" type="button">Done</button></div>
     </dialog>
