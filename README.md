@@ -4,6 +4,9 @@ Hussain Compiler is a lightweight, browser-based Python IDE with a VS Code-inspi
 
 # Link
 https://xpxxxu.github.io/hussain-py-compiler/
+# picture
+<img width="1920" height="918" alt="image" src="https://github.com/user-attachments/assets/a3ce49aa-770d-4d7d-b517-25f5f380f8cb" />
+
 ## Features
 
 - Python editor with syntax highlighting, line numbers, automatic bracket and quote closing, undo/redo, find/replace, and go to line.
