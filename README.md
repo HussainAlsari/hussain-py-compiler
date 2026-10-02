@@ -1,11 +1,17 @@
 # Hussain Compiler
 
-Hussain Compiler is a lightweight, browser-based Python IDE with a VS Code-inspired layout. It runs Python through [Pyodide](https://pyodide.org/) and WebAssembly; no backend server is required.
+Hussain Compiler is a browser-based Python IDE powered by [Pyodide](https://pyodide.org/) and WebAssembly. It lets you write, run, and test Python code directly in the browser with a VS Code-inspired interface—no backend server required.
 
-# Link
-https://xpxxxu.github.io/hussain-py-compiler/
-# picture
-<img width="1920" height="918" alt="image" src="https://github.com/user-attachments/assets/a3ce49aa-770d-4d7d-b517-25f5f380f8cb" />
+Website: https://xpxxxu.github.io/hussain-py-compiler/
+
+## Search keywords
+
+- browser-based Python IDE
+- online Python compiler
+- Python in browser
+- Pyodide IDE
+- WebAssembly Python editor
+- Python editor for web
 
 ## Features
 
@@ -32,4 +38,12 @@ Open <http://localhost:8000> in a modern browser. Opening `index.html` directly 
 
 ## Python and package support
 
-This is Python running in WebAssembly, not a native system Python installation, and it does not produce executable binaries. The standard library and packages built for Pyodide are supported. `micropip` can install pure-Python packages and packages with wheels compatible with WebAssembly. Packages that require unsupported operating-system features or native extensions will not work. Files on your computer are not accessible automatically; import files into the workspace. Workspace files are saved in the current browser's local storage.
+This is Python running in WebAssembly, not a native system Python installation, and it does not produce executable binaries. The standard library and packages built for Pyodide are supported. `micropip` can install some additional packages from the Pyodide package index.
+
+## Link
+
+https://xpxxxu.github.io/hussain-py-compiler/
+
+## picture
+
+<img width="1920" height="918" alt="Hussain Compiler screenshot" src="https://github.com/user-attachments/assets/a3ce49aa-770d-4d7d-b517-25f5f380f8cb" />
