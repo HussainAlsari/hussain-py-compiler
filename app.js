@@ -1,4 +1,6 @@
 const STORAGE_KEY = "hussain-compiler-workspace-v1";
+const SETTINGS_KEY = "hussain-compiler-settings-v1";
+const DEFAULT_SETTINGS = { autoCloseBrackets: true, fontSize: 13 };
 const SAMPLE = `# Welcome to Hussain Compiler\n# Write Python here, then click Run Python\n\ndef greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("Python"))\n`;
 const PACKAGE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*(?:\[[A-Za-z0-9_,.-]+\])?(?:(?:===|==|~=|!=|<=|>=|<|>)\s*[A-Za-z0-9.*+_-]+(?:,(?:===|==|~=|!=|<=|>=|<|>)\s*[A-Za-z0-9.*+_-]+)*)?$/;
 
@@ -9,6 +11,7 @@ const elements = Object.fromEntries([
   "clearOutputBtn", "packageForm", "packageName", "installBtn", "toast", "workspace",
   "mainPanel", "explorerBtn", "searchBtn", "runActivityBtn", "extensionsBtn", "aboutBtn",
   "rootNewFileBtn", "rootOpenFilesBtn", "windowTitle", "breadcrumbFileName", "toggleWordWrapItem",
+  "settingsDialog", "settingsCloseBtn", "settingsDoneBtn", "autoCloseBracketsSetting", "fontSizeSetting", "fontSizeValue",
 ].map((id) => [id, document.getElementById(id)]));
 
 let savedActiveFile = null;
@@ -26,6 +29,28 @@ let toastTimer = 0;
 let operationId = 0;
 let pendingInputRequest = null;
 let pendingInputEditor = null;
+let settings = readSettings();
+let errorLine = null;
+
+function readSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "null");
+    return {
+      autoCloseBrackets: typeof saved?.autoCloseBrackets === "boolean" ? saved.autoCloseBrackets : DEFAULT_SETTINGS.autoCloseBrackets,
+      fontSize: Number.isInteger(saved?.fontSize) ? Math.min(24, Math.max(10, saved.fontSize)) : DEFAULT_SETTINGS.fontSize,
+    };
+  } catch (_) {
+    return { ...DEFAULT_SETTINGS };
+  }
+}
+
+function saveSettings() {
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  } catch (_) {
+    showToast("Preferences could not be saved in this browser.", true);
+  }
+}
 
 function readWorkspace() {
   try {
@@ -110,6 +135,7 @@ function openWorkspaceFile(name) {
   if (!Object.hasOwn(files, name)) return;
   if (activeFile && editor) files[activeFile] = editor.getValue();
   activeFile = name;
+  clearErrorLocation();
   editor.setValue(files[name]);
   elements.dirtyMark.hidden = true;
   elements.saveState.textContent = "Saved locally";
@@ -200,7 +226,8 @@ function deleteCurrentFile() {
 function ensureRuntime() {
   if (runtimePromise) return runtimePromise;
   setRuntimeStatus("Loading Python WebAssembly…", "busy");
-  appendOutput("The first Python startup may take a little while…", "system");
+  if (!busy) elements.runState.textContent = "Loading Python…";
+  appendOutput("Preparing Python in the background. The first launch downloads the runtime; your browser can reuse cached files later.", "system");
   runtimePromise = new Promise((resolve, reject) => {
     rejectRuntimePromise = reject;
     worker = new Worker("./py-worker.js", { type: "module" });
@@ -211,22 +238,30 @@ function ensureRuntime() {
         const statusRuntime = document.getElementById("statusRuntime");
         if (statusRuntime) statusRuntime.textContent = `Python ${message.version} · WASM`;
         setRuntimeStatus(`Python ${message.version} ready`, "ready");
+        if (!busy) elements.runState.textContent = "Python ready";
         resolve(worker);
         rejectRuntimePromise = null;
       } else if (message.type === "init-error") {
         setRuntimeStatus("Could not load Python", "error");
+        if (!busy) elements.runState.textContent = "Could not load Python";
         rejectRuntimePromise?.(new Error(message.message));
         rejectRuntimePromise = null;
         runtimePromise = null;
+        worker?.terminate();
+        worker = null;
         appendOutput(message.message, "error");
       } else if (message.type === "output") {
         appendOutput(message.text, message.error ? "error" : "");
+      } else if (message.type === "progress") {
+        elements.runState.textContent = message.text;
+        setRuntimeStatus("Preparing Python…", "busy");
       } else if (message.type === "installed") {
         appendOutput(`${message.package} installed for this browser session.`, "system");
       } else if (message.type === "input-request") {
         beginTerminalInput(message);
       } else if (message.type === "error") {
         appendOutput(message.message, "error");
+        showErrorLocation(message.line, message.filename);
         setRuntimeStatus("Execution error", "error");
       } else if (message.type === "done") {
         pendingInputRequest = null;
@@ -245,8 +280,11 @@ function ensureRuntime() {
     });
     worker.addEventListener("error", (event) => {
       setRuntimeStatus("Could not load runtime", "error");
+      if (!busy) elements.runState.textContent = "Could not load Python";
       rejectRuntimePromise?.(event.error || new Error(event.message));
       runtimePromise = null;
+      worker?.terminate();
+      worker = null;
       appendOutput(event.message || "Python worker error.", "error");
       finishOperation();
     });
@@ -265,8 +303,31 @@ function finishOperation() {
   elements.stopBtn.disabled = true;
 }
 
+function clearErrorLocation() {
+  if (!editor || errorLine === null) return;
+  editor.setGutterMarker(errorLine, "hussain-error-gutter", null);
+  editor.removeLineClass(errorLine, "background", "hussain-error-line");
+  errorLine = null;
+}
+
+function showErrorLocation(lineNumber, filename) {
+  if (!editor || !Number.isInteger(lineNumber) || lineNumber < 1 || filename !== activeFile) return;
+  clearErrorLocation();
+  const line = Math.min(lineNumber - 1, editor.lineCount() - 1);
+  const marker = document.createElement("span");
+  marker.className = "error-gutter-marker";
+  marker.textContent = "➜";
+  marker.title = `Error on line ${line + 1}`;
+  marker.setAttribute("aria-label", `Error on line ${line + 1}`);
+  editor.setGutterMarker(line, "hussain-error-gutter", marker);
+  editor.addLineClass(line, "background", "hussain-error-line");
+  errorLine = line;
+  editor.scrollIntoView({ line, ch: 0 }, 80);
+}
+
 async function runCode() {
   if (busy || !editor) return;
+  clearErrorLocation();
   saveWorkspace();
   const filename = activeFile;
   const code = editor.getValue();
@@ -465,6 +526,42 @@ function toggleWordWrap() {
   elements.toggleWordWrapItem.setAttribute("aria-pressed", String(wordWrapEnabled));
 }
 
+function applyEditorSettings() {
+  if (!editor) return;
+  editor.setOption("autoCloseBrackets", settings.autoCloseBrackets);
+  editor.getWrapperElement().style.fontSize = `${settings.fontSize}px`;
+  elements.fontSizeValue.value = `${settings.fontSize} px`;
+  elements.fontSizeValue.textContent = `${settings.fontSize} px`;
+  editor.refresh();
+}
+
+function openSettings() {
+  if (!elements.settingsDialog.open) elements.settingsDialog.showModal();
+}
+
+function initSettings() {
+  elements.autoCloseBracketsSetting.checked = settings.autoCloseBrackets;
+  elements.fontSizeSetting.value = String(settings.fontSize);
+  elements.fontSizeValue.value = `${settings.fontSize} px`;
+  elements.fontSizeValue.textContent = `${settings.fontSize} px`;
+  elements.autoCloseBracketsSetting.addEventListener("change", () => {
+    settings.autoCloseBrackets = elements.autoCloseBracketsSetting.checked;
+    applyEditorSettings();
+    saveSettings();
+  });
+  elements.fontSizeSetting.addEventListener("input", () => {
+    settings.fontSize = Number(elements.fontSizeSetting.value);
+    applyEditorSettings();
+  });
+  elements.fontSizeSetting.addEventListener("change", saveSettings);
+  const close = () => elements.settingsDialog.close();
+  elements.settingsCloseBtn.addEventListener("click", close);
+  elements.settingsDoneBtn.addEventListener("click", close);
+  elements.settingsDialog.addEventListener("click", (event) => {
+    if (event.target === elements.settingsDialog) close();
+  });
+}
+
 function runCommand(command) {
   if (!editor && ["undo", "redo", "find", "replace", "select-all", "indent", "outdent", "go-to-line", "toggle-word-wrap"].includes(command)) {
     showToast("The code editor is unavailable.", true);
@@ -487,6 +584,7 @@ function runCommand(command) {
     case "toggle-sidebar": toggleExplorer(); break;
     case "toggle-panel": togglePanel(); break;
     case "toggle-word-wrap": toggleWordWrap(); break;
+    case "settings": openSettings(); break;
     case "run": runCode(); break;
     case "stop": stopExecution(); break;
     case "focus-terminal":
@@ -579,6 +677,8 @@ function initEditor() {
     theme: "material-darker",
     lineNumbers: true,
     matchBrackets: true,
+    autoCloseBrackets: settings.autoCloseBrackets,
+    gutters: ["hussain-error-gutter", "CodeMirror-linenumbers"],
     indentUnit: 4,
     tabSize: 4,
     indentWithTabs: false,
@@ -594,10 +694,20 @@ function initEditor() {
     },
   });
   editor.setValue(files[activeFile] ?? SAMPLE);
-  editor.on("change", scheduleSave);
+  let runtimeWarmupStarted = false;
+  editor.on("inputRead", () => {
+    if (runtimeWarmupStarted || runtimePromise) return;
+    runtimeWarmupStarted = true;
+    window.setTimeout(() => { void ensureRuntime().catch(() => {}); }, 250);
+  });
+  editor.on("change", () => {
+    clearErrorLocation();
+    scheduleSave();
+  });
   editor.on("cursorActivity", updateCursor);
   updateFileTitle();
   renderFiles();
+  applyEditorSettings();
   updateCursor();
 }
 
@@ -632,4 +742,5 @@ elements.aboutBtn.addEventListener("click", () => showToast("Hussain Compiler �
 window.addEventListener("beforeunload", saveWorkspace);
 initMenus();
 initShortcuts();
+initSettings();
 initEditor();

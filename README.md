@@ -4,9 +4,12 @@ Hussain Compiler is a lightweight, browser-based Python IDE with a VS Code-inspi
 
 ## Features
 
-- Python editor with syntax highlighting, line numbers, bracket matching, undo/redo, find/replace, and go to line.
-- File, Edit, Selection, View, Run, Terminal, and Help menus, plus common keyboard shortcuts.
+- Python editor with syntax highlighting, line numbers, automatic bracket and quote closing, undo/redo, find/replace, and go to line.
+- Settings for toggling automatic closing and adjusting editor font size, saved in the browser.
+- Python errors point to their source line in the editor when the traceback includes a matching file and line.
+- File, Edit, Selection, View, Settings, Run, Terminal, and Help menus, plus common keyboard shortcuts.
 - Run Python programs in a Web Worker. `input()` requests appear directly in the terminal; type there and press Enter.
+- Start the Python runtime in the background as you begin typing, with status updates while Python and imported packages load.
 - Multiple workspace files, file import, local browser storage, and file download.
 - Install packages with `micropip` and load packages supported by Pyodide when imported.
 - Responsive VS Code-inspired dark interface.

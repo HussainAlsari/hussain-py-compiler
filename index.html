@@ -14,6 +14,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js" defer></script>
   <script src="./app.js" defer></script>
 </head>
 <body>
@@ -65,6 +66,12 @@
           </div>
         </div>
         <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">Settings</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="settings"><span>Editor Settings…</span><kbd></kbd></button>
+          </div>
+        </div>
+        <div class="menu-wrap">
           <button class="menu-trigger" type="button" aria-expanded="false">Run</button>
           <div class="menu-dropdown" hidden>
             <button type="button" data-command="run"><span>Run Python File</span><kbd>Ctrl+Enter</kbd></button>
@@ -89,7 +96,7 @@
 
       <div class="window-title" id="windowTitle">main.py — Hussain Compiler</div>
       <div class="titlebar-actions">
-        <span class="runtime-pill"><i class="status-dot" id="statusDot"></i><span id="runtimeStatus">Python runtime loading</span><span id="pythonVersion" hidden>3</span></span>
+        <span class="runtime-pill"><i class="status-dot" id="statusDot"></i><span id="runtimeStatus">Python on demand</span><span id="pythonVersion" hidden>3</span></span>
         <span class="pages-badge">WEB IDE</span>
       </div>
     </header>
@@ -174,6 +181,21 @@
     </footer>
 
     <input id="filePicker" type="file" accept=".py,.pyw,.txt,.json,.csv,.md,.toml" multiple hidden>
+    <dialog class="settings-dialog" id="settingsDialog" aria-labelledby="settingsTitle">
+      <div class="settings-heading">
+        <div><span class="settings-eyebrow">PREFERENCES</span><h2 id="settingsTitle">Editor Settings</h2></div>
+        <button class="icon-button" id="settingsCloseBtn" type="button" aria-label="Close settings">×</button>
+      </div>
+      <label class="setting-row" for="autoCloseBracketsSetting">
+        <span><strong>Auto-close brackets and quotes</strong><small>Insert the matching ) ] } or quote as you type.</small></span>
+        <input id="autoCloseBracketsSetting" type="checkbox" checked>
+      </label>
+      <label class="setting-row font-setting" for="fontSizeSetting">
+        <span><strong>Editor font size</strong><small>Adjust how large code appears in the editor.</small></span>
+        <span class="font-size-control"><input id="fontSizeSetting" type="range" min="10" max="24" step="1" value="13"><output id="fontSizeValue" for="fontSizeSetting">13 px</output></span>
+      </label>
+      <div class="settings-footer"><span>Preferences are saved in this browser.</span><button class="settings-done" id="settingsDoneBtn" type="button">Done</button></div>
+    </dialog>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
 </body>

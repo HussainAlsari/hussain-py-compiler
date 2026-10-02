@@ -1,5 +1,6 @@
 import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.mjs";
 
+emit("progress", { text: "Starting the Python WebAssembly runtime…" });
 const runtime = loadPyodide({
   indexURL: "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/",
 });
@@ -174,7 +175,9 @@ async function handle(message) {
     const filename = safeRelativePath(message.filename) || "main.py";
     pyodide.globals.set("__name__", "__main__");
     pyodide.globals.set("__file__", `${root}/${filename}`);
-    await pyodide.loadPackagesFromImports(message.code);
+    await pyodide.loadPackagesFromImports(message.code, {
+      messageCallback: (text) => emit("progress", { text: String(text) }),
+    });
     pyodide.globals.set("__hussain_source", message.code);
     pyodide.globals.set("__hussain_filename", `${root}/${filename}`);
     pyodide.runPython(INPUT_TRANSFORMER);
@@ -203,6 +206,23 @@ async function handle(message) {
   }
 }
 
+function findSourceErrorLine(error, filename) {
+  const target = safeRelativePath(filename);
+  if (!target) return null;
+  const details = String(error?.stack || error);
+  const frames = [...details.matchAll(/File\s+["']([^"']+)["'],\s+line\s+(\d+)/g)];
+  const matchingFrame = frames.reverse().find((match) => {
+    const path = String(match[1]).replaceAll("\\", "/");
+    return path === target || path.endsWith(`/${target}`);
+  });
+  if (matchingFrame) return Number(matchingFrame[2]);
+  const syntaxError = [...details.matchAll(/\(([^,()]+), line (\d+)\)/g)].reverse().find((match) => {
+    const path = String(match[1]).replaceAll("\\", "/");
+    return path === target || path.endsWith(`/${target}`);
+  });
+  return syntaxError ? Number(syntaxError[2]) : null;
+}
+
 runtime.then(async (pyodide) => {
   const version = pyodide.runPython("import sys; sys.version.split()[0]");
   emit("ready", { version });
@@ -217,7 +237,12 @@ self.addEventListener("message", async (event) => {
   try {
     await handle(message);
   } catch (error) {
-    emit("error", { id: message.id, message: String(error?.stack || error) });
+    emit("error", {
+      id: message.id,
+      message: String(error?.stack || error),
+      filename: message.type === "run" ? safeRelativePath(message.filename) : null,
+      line: message.type === "run" ? findSourceErrorLine(error, message.filename) : null,
+    });
     emit("done", { id: message.id, operation: message.type, ok: false });
   }
 });
