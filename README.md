@@ -1,7 +1,8 @@
 # Hussain Compiler
 
 Hussain Compiler is a lightweight, browser-based Python IDE with a VS Code-inspired layout. It runs Python through [Pyodide](https://pyodide.org/) and WebAssembly; no backend server is required.
-
+##Link
+https://xpxxxu.github.io/hussain-py-compiler/
 ## Features
 
 - Python editor with syntax highlighting, line numbers, automatic bracket and quote closing, undo/redo, find/replace, and go to line.
@@ -24,14 +25,6 @@ python -m http.server 8000
 ```
 
 Open <http://localhost:8000> in a modern browser. Opening `index.html` directly as a `file://` URL is not supported because the Python worker uses ES modules.
-
-## Publish with GitHub Pages
-
-1. Push the contents of this folder to the `main` branch of a GitHub repository.
-2. In the repository, open **Settings → Pages** and select **GitHub Actions** as the build and deployment source.
-3. The workflow in `.github/workflows/pages.yml` publishes the site after a push to `main`. You can also run it manually from the **Actions** tab.
-
-The site uses relative asset and worker paths, so it works from both a repository subpath and a custom domain.
 
 ## Python and package support
 
