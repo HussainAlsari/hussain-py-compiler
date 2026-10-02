@@ -892,3 +892,8 @@ initEditor();
   buttons[1].addEventListener('click',()=>{fontSize=Math.min(24,fontSize+1);save('hussain-terminal-font-size',fontSize);applyZoom();});
   outActions?.prepend(zoom);applyZoom();
 })();
+
+// Keep one set of controls when page-level initialization runs before deferred scripts.
+for (const selector of ['.explorer-splitter','.terminal-splitter','.terminal-zoom']) {
+  document.querySelectorAll(selector).forEach((element,index)=>{ if(index>0) element.remove(); });
+}
