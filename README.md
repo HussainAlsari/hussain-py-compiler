@@ -39,7 +39,7 @@ This is Python running in WebAssembly, not a native system Python installation, 
 
 - Hussain Compiler 
 - Hussain python compiler
-- Python Hussain
+- github Python Hussain
 - Hussain Browser Compiler
 - WebAssembly Python editor by Hussain
 - Python editor made by Hussian
