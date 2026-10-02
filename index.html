@@ -200,3 +200,18 @@
   </div>
 </body>
 </html>
+
+<script>
+(() => {
+  const style = document.createElement('style');
+  style.textContent = `.welcome-dialog { width:min(900px,92vw); max-height:90vh; padding:0; border:1px solid #454545; border-radius:14px; color:#eee; background:#1e1e1e; box-shadow:0 24px 80px #000b; overflow:hidden } .welcome-dialog::backdrop { background:#000b; backdrop-filter:blur(4px) } .welcome-layout { display:grid; grid-template-columns:1.1fr 1fr; min-height:360px } .welcome-photo { width:100%; height:100%; min-height:360px; object-fit:cover; filter:grayscale(1) } .welcome-copy { padding:38px 32px; display:flex; flex-direction:column; justify-content:center; gap:16px } .welcome-copy h2 { margin:0; font-size:28px } .welcome-copy p { color:#bbb; line-height:1.6; margin:0 } .welcome-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px } .welcome-actions a,.welcome-actions button { padding:10px 14px; border-radius:6px; border:1px solid #555; color:#eee; background:#292929; text-decoration:none; cursor:pointer; font:inherit } .welcome-actions .welcome-primary { background:#1677d2; border-color:#1677d2 } @media(max-width:620px){.welcome-layout{grid-template-columns:1fr}.welcome-photo{height:190px;min-height:190px}.welcome-copy{padding:24px}}`;
+  document.head.appendChild(style);
+  const dialog = document.createElement('dialog');
+  dialog.className = 'welcome-dialog';
+  dialog.setAttribute('aria-labelledby','welcome-title');
+  dialog.innerHTML = `<div class="welcome-layout"><img class="welcome-photo" src="./hussain-compiler-welcome.jpeg" alt="Hussain Compiler creator portrait"><div class="welcome-copy"><span>WELCOME TO</span><h2 id="welcome-title">Hussain Compiler</h2><p>Built by Hussain to make writing and running Python simple, right in your browser.</p><p>If you enjoy it, please give the project a star on GitHub. It means a lot!</p><div class="welcome-actions"><a class="welcome-primary" href="https://github.com/HussainAlsari/hussain-py-compiler" target="_blank" rel="noopener">View on GitHub</a><a href="https://github.com/HussainAlsari/hussain-py-compiler/stargazers" target="_blank" rel="noopener">★ Star the repo</a><a href="https://buymeacoffee.com/xpxxxu" target="_blank" rel="noopener">Buy Me a Coffee</a><button type="button" data-dismiss>Start Coding</button></div></div></div>`;
+  document.body.appendChild(dialog);
+  dialog.addEventListener('click', event => { if(event.target === dialog || event.target.closest('[data-dismiss]')) dialog.close(); });
+  dialog.showModal();
+})();
+</script>
