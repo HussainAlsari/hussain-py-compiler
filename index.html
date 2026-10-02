@@ -157,7 +157,7 @@
         <section class="editor-stage" aria-label="Code editor">
           <div class="editor-tabbar">
             <div class="active-file-tab"><span class="python-file-icon">Py</span><span id="activeFileName">main.py</span><i id="dirtyMark" class="dirty-mark" hidden></i></div>
-            <div class="editor-actions"><span id="saveState">Saved</span><button class="icon-button small" id="deleteFileBtn" type="button" title="Delete Current File" aria-label="Delete Current File">⌫</button></div>
+            <div class="editor-actions"><span id="saveState">Saved</span><button class="icon-button small" id="deleteFileBtn" type="button" title="Delete Current File" aria-label="Delete Current File">×</button></div>
           </div>
           <div class="editor-wrap"><textarea id="code" aria-label="Python code editor"></textarea></div>
           <div class="editor-footer"><span id="cursorPosition">Ln 1, Col 1</span><span>Python&nbsp; · &nbsp;UTF-8&nbsp; · &nbsp;Spaces: 4</span></div>
@@ -166,7 +166,7 @@
         <section class="output-panel" aria-label="Terminal">
           <div class="output-header">
             <div class="panel-tabs"><button class="panel-tab active" type="button">TERMINAL</button><span class="terminal-profile">Python WebAssembly</span></div>
-            <div class="output-actions"><span id="runState">Ready</span><button class="text-button" id="downloadOutputImageBtn" type="button" title="Download input and output as a PNG image">Save PNG</button></div>
+            <div class="output-actions"><span id="runState">Ready</span><button class="text-button" id="downloadOutputImageBtn" type="button" title="Download input and output as a PNG image">Save PNG</button><button class="text-button" id="clearOutputBtn" type="button" title="Clear Terminal">Clear</button></div>
           </div>
           <div class="console" id="console" role="log" aria-live="polite" aria-label="Python terminal. Type here when the program requests input." tabindex="0">
             <div class="welcome-line"><span class="console-prompt">›</span> Python runs in your browser. Type in this terminal when your program calls <b>input()</b>.</div>
