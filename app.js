@@ -1,0 +1,635 @@
+const STORAGE_KEY = "hussain-compiler-workspace-v1";
+const SAMPLE = `# Welcome to Hussain Compiler\n# Write Python here, then click Run Python\n\ndef greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("Python"))\n`;
+const PACKAGE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*(?:\[[A-Za-z0-9_,.-]+\])?(?:(?:===|==|~=|!=|<=|>=|<|>)\s*[A-Za-z0-9.*+_-]+(?:,(?:===|==|~=|!=|<=|>=|<|>)\s*[A-Za-z0-9.*+_-]+)*)?$/;
+
+const elements = Object.fromEntries([
+  "fileList", "newFileBtn", "openFilesBtn", "filePicker", "saveBtn", "downloadBtn",
+  "runBtn", "stopBtn", "deleteFileBtn", "activeFileName", "dirtyMark", "saveState",
+  "runtimeStatus", "statusDot", "pythonVersion", "cursorPosition", "console", "runState",
+  "clearOutputBtn", "packageForm", "packageName", "installBtn", "toast", "workspace",
+  "mainPanel", "explorerBtn", "searchBtn", "runActivityBtn", "extensionsBtn", "aboutBtn",
+  "rootNewFileBtn", "rootOpenFilesBtn", "windowTitle", "breadcrumbFileName", "toggleWordWrapItem",
+].map((id) => [id, document.getElementById(id)]));
+
+let savedActiveFile = null;
+let files = readWorkspace();
+let activeFile = savedActiveFile && Object.hasOwn(files, savedActiveFile)
+  ? savedActiveFile
+  : Object.keys(files)[0];
+let editor;
+let worker = null;
+let runtimePromise = null;
+let rejectRuntimePromise = null;
+let busy = false;
+let saveTimer = 0;
+let toastTimer = 0;
+let operationId = 0;
+let pendingInputRequest = null;
+let pendingInputEditor = null;
+
+function readWorkspace() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+    if (saved && saved.files && Object.keys(saved.files).length) {
+      savedActiveFile = saved.activeFile || null;
+      return Object.assign(Object.create(null), saved.files);
+    }
+  } catch (_) { /* Start with the sample if storage is unavailable or invalid. */ }
+  return Object.assign(Object.create(null), { "main.py": SAMPLE });
+}
+
+function saveWorkspace() {
+  if (editor && activeFile) files[activeFile] = editor.getValue();
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ files, activeFile }));
+    elements.saveState.textContent = "Saved locally";
+    elements.dirtyMark.hidden = true;
+    return true;
+  } catch (error) {
+    elements.saveState.textContent = "Save failed";
+    showToast("Browser storage is full or unavailable.", true);
+    return false;
+  }
+}
+
+function scheduleSave() {
+  elements.dirtyMark.hidden = false;
+  elements.saveState.textContent = "Unsaved changes";
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveWorkspace, 300);
+}
+
+function showToast(message, isError = false) {
+  elements.toast.textContent = message;
+  elements.toast.classList.toggle("error", isError);
+  elements.toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => elements.toast.classList.remove("show"), 2800);
+}
+
+function setRuntimeStatus(text, state = "idle") {
+  elements.runtimeStatus.textContent = text;
+  elements.statusDot.className = `status-dot${state === "ready" ? " ready" : state === "busy" ? " busy" : state === "error" ? " error" : ""}`;
+}
+
+function appendOutput(text, kind = "") {
+  const line = document.createElement("div");
+  line.className = `console-line${kind ? ` ${kind}` : ""}`;
+  line.textContent = text;
+  elements.console.append(line);
+  elements.console.scrollTop = elements.console.scrollHeight;
+}
+
+function safeFileName(name) {
+  const normalized = String(name || "").trim().replaceAll("\\", "/");
+  const parts = normalized.split("/").filter((part) => part && part !== ".");
+  if (!parts.length || parts.some((part) => part === "..") || normalized.startsWith("/")) return "";
+  return parts.join("/");
+}
+
+function renderFiles() {
+  elements.fileList.replaceChildren();
+  Object.keys(files).sort((a, b) => a.localeCompare(b)).forEach((name) => {
+    const row = document.createElement("button");
+    row.type = "button";
+    row.className = `file-row${name === activeFile ? " active" : ""}`;
+    row.title = name;
+    const type = document.createElement("span");
+    type.className = "file-type";
+    type.textContent = name.toLowerCase().endsWith(".py") ? "Py" : "·";
+    const label = document.createElement("span");
+    label.className = "file-name";
+    label.textContent = name;
+    row.append(type, label);
+    row.addEventListener("click", () => openWorkspaceFile(name));
+    elements.fileList.append(row);
+  });
+}
+
+function openWorkspaceFile(name) {
+  if (!Object.hasOwn(files, name)) return;
+  if (activeFile && editor) files[activeFile] = editor.getValue();
+  activeFile = name;
+  editor.setValue(files[name]);
+  elements.dirtyMark.hidden = true;
+  elements.saveState.textContent = "Saved locally";
+  updateFileTitle();
+  renderFiles();
+  saveWorkspace();
+}
+
+function createFile() {
+  const proposed = prompt("File name (for example: main.py):", "new_file.py");
+  if (proposed === null) return;
+  let name = safeFileName(proposed);
+  if (!name) {
+    showToast("Enter a valid relative file name inside the workspace.", true);
+    return;
+  }
+  if (!name.includes(".")) name += ".py";
+  if (Object.hasOwn(files, name)) {
+    showToast("A file with this name already exists.", true);
+    return;
+  }
+  files[name] = "";
+  openWorkspaceFile(name);
+  editor.focus();
+}
+
+function importFiles(fileList) {
+  const selected = Array.from(fileList || []);
+  if (!selected.length) return;
+  let remaining = selected.length;
+  let imported = 0;
+  let firstImported = null;
+  let failed = false;
+  const completeOne = () => {
+    remaining -= 1;
+    if (remaining !== 0) return;
+    renderFiles();
+    saveWorkspace();
+    if (firstImported) openWorkspaceFile(firstImported);
+    showToast(failed ? `Imported ${imported} of ${selected.length} files.` : `Imported ${imported} file(s) into the browser workspace.`, failed);
+  };
+  for (const file of selected) {
+    const name = safeFileName(file.webkitRelativePath || file.name);
+    if (!name) {
+      failed = true;
+      completeOne();
+      continue;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      files[name] = String(reader.result ?? "");
+      imported += 1;
+      if (!firstImported) firstImported = name;
+      completeOne();
+    };
+    reader.onerror = () => {
+      failed = true;
+      completeOne();
+    };
+    reader.readAsText(file);
+  }
+}
+
+function downloadCurrentFile() {
+  if (!activeFile) return;
+  const blob = new Blob([editor.getValue()], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = activeFile.split("/").pop();
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function deleteCurrentFile() {
+  if (Object.keys(files).length < 2) {
+    showToast("The workspace must contain at least one file.", true);
+    return;
+  }
+  const name = activeFile;
+  if (!confirm(`Delete ${name} from the workspace?`)) return;
+  delete files[name];
+  activeFile = Object.keys(files)[0];
+  openWorkspaceFile(activeFile);
+  renderFiles();
+}
+
+function ensureRuntime() {
+  if (runtimePromise) return runtimePromise;
+  setRuntimeStatus("Loading Python WebAssembly…", "busy");
+  appendOutput("The first Python startup may take a little while…", "system");
+  runtimePromise = new Promise((resolve, reject) => {
+    rejectRuntimePromise = reject;
+    worker = new Worker("./py-worker.js", { type: "module" });
+    worker.addEventListener("message", (event) => {
+      const message = event.data || {};
+      if (message.type === "ready") {
+        elements.pythonVersion.textContent = message.version;
+        const statusRuntime = document.getElementById("statusRuntime");
+        if (statusRuntime) statusRuntime.textContent = `Python ${message.version} · WASM`;
+        setRuntimeStatus(`Python ${message.version} ready`, "ready");
+        resolve(worker);
+        rejectRuntimePromise = null;
+      } else if (message.type === "init-error") {
+        setRuntimeStatus("Could not load Python", "error");
+        rejectRuntimePromise?.(new Error(message.message));
+        rejectRuntimePromise = null;
+        runtimePromise = null;
+        appendOutput(message.message, "error");
+      } else if (message.type === "output") {
+        appendOutput(message.text, message.error ? "error" : "");
+      } else if (message.type === "installed") {
+        appendOutput(`${message.package} installed for this browser session.`, "system");
+      } else if (message.type === "input-request") {
+        beginTerminalInput(message);
+      } else if (message.type === "error") {
+        appendOutput(message.message, "error");
+        setRuntimeStatus("Execution error", "error");
+      } else if (message.type === "done") {
+        pendingInputRequest = null;
+        if (pendingInputEditor) pendingInputEditor.contentEditable = "false";
+        pendingInputEditor = null;
+        elements.clearOutputBtn.disabled = false;
+        busy = false;
+        elements.runBtn.disabled = false;
+        elements.installBtn.disabled = false;
+        elements.stopBtn.disabled = true;
+        elements.runState.textContent = message.operation === "install"
+          ? (message.ok ? "Installation complete" : "Installation failed")
+          : (message.ok ? "Finished" : "Finished with errors");
+        if (message.ok && message.id === operationId) setRuntimeStatus(`Python ${elements.pythonVersion.textContent} ready`, "ready");
+      }
+    });
+    worker.addEventListener("error", (event) => {
+      setRuntimeStatus("Could not load runtime", "error");
+      rejectRuntimePromise?.(event.error || new Error(event.message));
+      runtimePromise = null;
+      appendOutput(event.message || "Python worker error.", "error");
+      finishOperation();
+    });
+  });
+  return runtimePromise;
+}
+
+function finishOperation() {
+  pendingInputRequest = null;
+  if (pendingInputEditor) pendingInputEditor.contentEditable = "false";
+  pendingInputEditor = null;
+  elements.clearOutputBtn.disabled = false;
+  busy = false;
+  elements.runBtn.disabled = false;
+  elements.installBtn.disabled = false;
+  elements.stopBtn.disabled = true;
+}
+
+async function runCode() {
+  if (busy || !editor) return;
+  saveWorkspace();
+  const filename = activeFile;
+  const code = editor.getValue();
+  const workspaceFiles = Object.assign({}, files, { [filename]: code });
+  busy = true;
+  operationId += 1;
+  elements.runBtn.disabled = true;
+  elements.installBtn.disabled = true;
+  elements.stopBtn.disabled = false;
+  elements.runState.textContent = "Running…";
+  appendOutput(`▶ ${activeFile}`, "system");
+  try {
+    const activeWorker = await ensureRuntime();
+    if (!busy || activeWorker !== worker) return;
+    setRuntimeStatus("Running program…", "busy");
+    activeWorker.postMessage({
+      type: "run", id: operationId, files: workspaceFiles, filename, code,
+    });
+  } catch (error) {
+    appendOutput(String(error?.message || error), "error");
+    elements.runState.textContent = "Could not run";
+    finishOperation();
+  }
+}
+
+async function installPackage(event) {
+  event.preventDefault();
+  if (busy) return;
+  const packageName = elements.packageName.value.trim();
+  if (!PACKAGE_PATTERN.test(packageName)) {
+    showToast("Enter a package name such as requests or package==1.2.3.", true);
+    return;
+  }
+  busy = true;
+  operationId += 1;
+  elements.runBtn.disabled = true;
+  elements.installBtn.disabled = true;
+  elements.stopBtn.disabled = false;
+  elements.runState.textContent = `Installing ${packageName}…`;
+  appendOutput(`＋ Installing ${packageName}`, "system");
+  try {
+    const activeWorker = await ensureRuntime();
+    if (!busy || activeWorker !== worker) return;
+    setRuntimeStatus("Installing package…", "busy");
+    activeWorker.postMessage({ type: "install", id: operationId, package: packageName });
+    elements.packageName.value = "";
+  } catch (error) {
+    appendOutput(String(error?.message || error), "error");
+    elements.runState.textContent = "Could not install";
+    finishOperation();
+  }
+}
+
+function stopExecution() {
+  if (!busy) return;
+  worker?.terminate();
+  worker = null;
+  runtimePromise = null;
+  rejectRuntimePromise?.(new Error("Execution stopped."));
+  rejectRuntimePromise = null;
+  operationId += 1;
+  if (pendingInputEditor) {
+    pendingInputEditor.contentEditable = "false";
+    pendingInputEditor.closest(".console-input-line")?.classList.add("cancelled");
+  }
+  pendingInputEditor = null;
+  pendingInputRequest = null;
+  elements.clearOutputBtn.disabled = false;
+  appendOutput("Stopped. A fresh Python session will start the next time you run code.", "system");
+  elements.runState.textContent = "Stopped";
+  setRuntimeStatus("Python session reset", "idle");
+  finishOperation();
+}
+
+function beginTerminalInput(message) {
+  pendingInputRequest = message.requestId;
+  elements.clearOutputBtn.disabled = true;
+  const line = document.createElement("div");
+  line.className = "console-line console-input-line";
+  const prompt = document.createElement("span");
+  prompt.className = "console-input-prompt";
+  prompt.textContent = "› ";
+  const label = document.createElement("span");
+  label.className = "console-input-label";
+  label.textContent = message.prompt || "Enter a value:";
+  const value = document.createElement("span");
+  value.className = "console-input-value";
+  value.contentEditable = "true";
+  value.setAttribute("role", "textbox");
+  value.setAttribute("aria-label", "Type your input directly in the terminal, then press Enter");
+  value.setAttribute("spellcheck", "false");
+  line.append(prompt, label, value);
+  elements.console.append(line);
+  pendingInputEditor = value;
+  elements.runState.textContent = "Type in the terminal and press Enter";
+  elements.console.scrollTop = elements.console.scrollHeight;
+  value.focus();
+}
+
+function submitTerminalInput(event) {
+  if (event.key !== "Enter" || event.shiftKey || pendingInputRequest === null || !pendingInputEditor || !worker) return;
+  event.preventDefault();
+  const requestId = pendingInputRequest;
+  const value = String(pendingInputEditor.innerText || "").replace(/\r/g, "").split("\n", 1)[0];
+  pendingInputEditor.contentEditable = "false";
+  worker.postMessage({ type: "input-response", requestId, value });
+  pendingInputRequest = null;
+  pendingInputEditor = null;
+  elements.clearOutputBtn.disabled = false;
+  elements.runState.textContent = "Running…";
+}
+
+function handleTerminalClick() {
+  if (pendingInputEditor) pendingInputEditor.focus();
+}
+
+function updateFileTitle() {
+  const name = activeFile || "main.py";
+  const shortName = name.split("/").pop();
+  elements.activeFileName.textContent = shortName;
+  elements.activeFileName.title = name;
+  elements.breadcrumbFileName.textContent = shortName;
+  elements.breadcrumbFileName.title = name;
+  elements.windowTitle.textContent = `${shortName} — Hussain Compiler`;
+  document.title = `${shortName} — Hussain Compiler`;
+}
+
+function findInEditor() {
+  const query = prompt("Find:", editor.getSelection());
+  if (query === null || query === "") return;
+  const source = editor.getValue();
+  const cursorIndex = editor.indexFromPos(editor.getCursor());
+  const index = source.indexOf(query, cursorIndex) >= 0
+    ? source.indexOf(query, cursorIndex)
+    : source.indexOf(query);
+  if (index < 0) {
+    showToast(`Could not find “${query}”.`);
+    return;
+  }
+  editor.setSelection(editor.posFromIndex(index), editor.posFromIndex(index + query.length));
+  editor.focus();
+}
+
+function replaceInEditor() {
+  const query = prompt("Find:", editor.getSelection());
+  if (query === null || query === "") return;
+  const replacement = prompt("Replace with:", "");
+  if (replacement === null) return;
+  const source = editor.getValue();
+  const matches = [];
+  let from = 0;
+  while ((from = source.indexOf(query, from)) !== -1) {
+    matches.push(from);
+    from += query.length;
+  }
+  if (!matches.length) {
+    showToast(`Could not find “${query}”.`);
+    return;
+  }
+  editor.operation(() => {
+    matches.reverse().forEach((index) => {
+      editor.replaceRange(replacement, editor.posFromIndex(index), editor.posFromIndex(index + query.length));
+    });
+  });
+  showToast(`Replaced ${matches.length} occurrence(s).`);
+  editor.focus();
+}
+
+function goToLine() {
+  const requested = prompt(`Go to line (1–${editor.lineCount()}):`, String(editor.getCursor().line + 1));
+  if (requested === null) return;
+  const line = Number.parseInt(requested, 10);
+  if (!Number.isInteger(line) || line < 1 || line > editor.lineCount()) {
+    showToast(`Enter a line number between 1 and ${editor.lineCount()}.`, true);
+    return;
+  }
+  editor.setCursor({ line: line - 1, ch: 0 });
+  editor.focus();
+  editor.scrollIntoView({ line: line - 1, ch: 0 }, 80);
+}
+
+function toggleExplorer() {
+  elements.workspace.classList.toggle("sidebar-collapsed");
+  elements.explorerBtn.classList.toggle("active", !elements.workspace.classList.contains("sidebar-collapsed"));
+}
+
+function togglePanel() {
+  elements.mainPanel.classList.toggle("panel-hidden");
+}
+
+let wordWrapEnabled = false;
+function toggleWordWrap() {
+  wordWrapEnabled = !wordWrapEnabled;
+  editor.setOption("lineWrapping", wordWrapEnabled);
+  elements.toggleWordWrapItem.classList.toggle("checked", wordWrapEnabled);
+  elements.toggleWordWrapItem.setAttribute("aria-pressed", String(wordWrapEnabled));
+}
+
+function runCommand(command) {
+  if (!editor && ["undo", "redo", "find", "replace", "select-all", "indent", "outdent", "go-to-line", "toggle-word-wrap"].includes(command)) {
+    showToast("The code editor is unavailable.", true);
+    return;
+  }
+  switch (command) {
+    case "new-file": createFile(); break;
+    case "open-files": elements.filePicker.click(); break;
+    case "save": saveWorkspace(); showToast("Workspace saved in this browser."); break;
+    case "download": downloadCurrentFile(); break;
+    case "delete-file": deleteCurrentFile(); break;
+    case "undo": editor.undo(); editor.focus(); break;
+    case "redo": editor.redo(); editor.focus(); break;
+    case "find": findInEditor(); break;
+    case "replace": replaceInEditor(); break;
+    case "select-all": editor.execCommand("selectAll"); editor.focus(); break;
+    case "indent": editor.indentLine(editor.getCursor().line, "add"); editor.focus(); break;
+    case "outdent": editor.indentLine(editor.getCursor().line, "subtract"); editor.focus(); break;
+    case "go-to-line": goToLine(); break;
+    case "toggle-sidebar": toggleExplorer(); break;
+    case "toggle-panel": togglePanel(); break;
+    case "toggle-word-wrap": toggleWordWrap(); break;
+    case "run": runCode(); break;
+    case "stop": stopExecution(); break;
+    case "focus-terminal":
+      if (pendingInputEditor) pendingInputEditor.focus();
+      else elements.console.focus();
+      break;
+    case "clear-terminal":
+      if (!pendingInputRequest) elements.console.replaceChildren();
+      break;
+    case "python-docs": window.open("https://docs.python.org/3/", "_blank", "noopener,noreferrer"); break;
+    case "about": showToast("Hussain Compiler — a browser-based Python IDE powered by Pyodide."); break;
+    default: return;
+  }
+}
+
+function closeMenus() {
+  document.querySelectorAll(".menu-trigger[aria-expanded='true']").forEach((button) => button.setAttribute("aria-expanded", "false"));
+  document.querySelectorAll(".menu-dropdown:not([hidden])").forEach((menu) => { menu.hidden = true; });
+}
+
+function initMenus() {
+  const menuBar = document.getElementById("menuBar");
+  menuBar.addEventListener("click", (event) => {
+    const trigger = event.target.closest(".menu-trigger");
+    if (trigger) {
+      const dropdown = trigger.nextElementSibling;
+      const open = trigger.getAttribute("aria-expanded") === "true";
+      closeMenus();
+      if (!open) {
+        trigger.setAttribute("aria-expanded", "true");
+        dropdown.hidden = false;
+      }
+      return;
+    }
+    const item = event.target.closest("[data-command]");
+    if (item) {
+      const command = item.dataset.command;
+      closeMenus();
+      runCommand(command);
+    }
+  });
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest("#menuBar")) closeMenus();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeMenus();
+  });
+}
+
+function initShortcuts() {
+  document.addEventListener("keydown", (event) => {
+    const mod = event.ctrlKey || event.metaKey;
+    const key = event.key.toLowerCase();
+    let command = null;
+    if (event.key === "F5" && event.shiftKey) command = "stop";
+    else if (event.key === "F5") command = "run";
+    else if (mod && event.key === "Enter") command = "run";
+    else if (mod && key === "n") command = "new-file";
+    else if (mod && key === "o") command = "open-files";
+    else if (mod && key === "s" && event.shiftKey) command = "download";
+    else if (mod && key === "s") command = "save";
+    else if (mod && key === "f") command = "find";
+    else if (mod && key === "h") command = "replace";
+    else if (mod && key === "g") command = "go-to-line";
+    else if (mod && key === "b") command = "toggle-sidebar";
+    else if (mod && key === "j") command = "toggle-panel";
+    else if (mod && event.key === "`") command = "focus-terminal";
+    if (!command) return;
+    event.preventDefault();
+    event.stopPropagation();
+    runCommand(command);
+  }, true);
+}
+
+function updateCursor() {
+  if (!editor) return;
+  const cursor = editor.getCursor();
+  elements.cursorPosition.textContent = `Ln ${cursor.line + 1}, Col ${cursor.ch + 1}`;
+}
+
+function initEditor() {
+  if (!window.CodeMirror) {
+    elements.runBtn.disabled = true;
+    elements.installBtn.disabled = true;
+    showToast("Could not load the code editor. Check your internet connection and reload the page.", true);
+    return;
+  }
+  editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+    mode: "python",
+    theme: "material-darker",
+    lineNumbers: true,
+    matchBrackets: true,
+    indentUnit: 4,
+    tabSize: 4,
+    indentWithTabs: false,
+    lineWrapping: false,
+    autofocus: true,
+    extraKeys: {
+      "Ctrl-Enter": runCode,
+      "Cmd-Enter": runCode,
+      Tab(cm) {
+        if (cm.somethingSelected()) cm.indentSelection("add");
+        else cm.replaceSelection("    ", "end");
+      },
+    },
+  });
+  editor.setValue(files[activeFile] ?? SAMPLE);
+  editor.on("change", scheduleSave);
+  editor.on("cursorActivity", updateCursor);
+  updateFileTitle();
+  renderFiles();
+  updateCursor();
+}
+
+elements.newFileBtn.addEventListener("click", createFile);
+elements.rootNewFileBtn.addEventListener("click", createFile);
+elements.openFilesBtn.addEventListener("click", () => elements.filePicker.click());
+elements.rootOpenFilesBtn.addEventListener("click", () => elements.filePicker.click());
+elements.filePicker.addEventListener("change", (event) => {
+  importFiles(event.target.files);
+  event.target.value = "";
+});
+elements.saveBtn.addEventListener("click", () => {
+  saveWorkspace();
+  showToast("Workspace saved in this browser.");
+});
+elements.downloadBtn.addEventListener("click", downloadCurrentFile);
+elements.runBtn.addEventListener("click", runCode);
+elements.stopBtn.addEventListener("click", stopExecution);
+elements.deleteFileBtn.addEventListener("click", deleteCurrentFile);
+elements.clearOutputBtn.addEventListener("click", () => elements.console.replaceChildren());
+elements.packageForm.addEventListener("submit", installPackage);
+elements.console.addEventListener("keydown", submitTerminalInput);
+elements.console.addEventListener("click", handleTerminalClick);
+elements.packageName.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") installPackage(event);
+});
+elements.explorerBtn.addEventListener("click", toggleExplorer);
+elements.searchBtn.addEventListener("click", findInEditor);
+elements.runActivityBtn.addEventListener("click", runCode);
+elements.extensionsBtn.addEventListener("click", () => document.querySelector(".package-box").scrollIntoView({ block: "nearest" }));
+elements.aboutBtn.addEventListener("click", () => showToast("Hussain Compiler — a browser-based Python IDE powered by Pyodide."));
+window.addEventListener("beforeunload", saveWorkspace);
+initMenus();
+initShortcuts();
+initEditor();

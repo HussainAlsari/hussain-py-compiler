@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#181818">
+  <meta name="description" content="Hussain Compiler is a lightweight Python IDE that runs in your browser.">
+  <title>Hussain Compiler</title>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="titlebar">
+      <div class="brand" aria-label="Hussain Compiler">
+        <span class="brand-mark" aria-hidden="true">HC</span>
+        <span class="brand-name">Hussain Compiler</span>
+      </div>
+
+      <nav class="menubar" id="menuBar" aria-label="Application menu">
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">File</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="new-file"><span>New File</span><kbd>Ctrl+N</kbd></button>
+            <button type="button" data-command="open-files"><span>Open Files…</span><kbd>Ctrl+O</kbd></button>
+            <div class="menu-divider"></div>
+            <button type="button" data-command="save"><span>Save</span><kbd>Ctrl+S</kbd></button>
+            <button type="button" data-command="download"><span>Download Current File</span><kbd>Ctrl+Shift+S</kbd></button>
+            <div class="menu-divider"></div>
+            <button type="button" data-command="delete-file"><span>Delete Current File</span><kbd></kbd></button>
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">Edit</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="undo"><span>Undo</span><kbd>Ctrl+Z</kbd></button>
+            <button type="button" data-command="redo"><span>Redo</span><kbd>Ctrl+Y</kbd></button>
+            <div class="menu-divider"></div>
+            <button type="button" data-command="find"><span>Find</span><kbd>Ctrl+F</kbd></button>
+            <button type="button" data-command="replace"><span>Replace</span><kbd>Ctrl+H</kbd></button>
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">Selection</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="select-all"><span>Select All</span><kbd>Ctrl+A</kbd></button>
+            <button type="button" data-command="indent"><span>Indent Line</span><kbd>Tab</kbd></button>
+            <button type="button" data-command="outdent"><span>Outdent Line</span><kbd>Shift+Tab</kbd></button>
+            <button type="button" data-command="go-to-line"><span>Go to Line…</span><kbd>Ctrl+G</kbd></button>
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">View</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="toggle-sidebar"><span>Toggle Explorer</span><kbd>Ctrl+B</kbd></button>
+            <button type="button" data-command="toggle-panel"><span>Toggle Panel</span><kbd>Ctrl+J</kbd></button>
+            <button type="button" id="toggleWordWrapItem" data-command="toggle-word-wrap"><span>Word Wrap</span><span class="check-mark" aria-hidden="true"></span></button>
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">Run</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="run"><span>Run Python File</span><kbd>Ctrl+Enter</kbd></button>
+            <button type="button" data-command="stop"><span>Stop Execution</span><kbd>Shift+F5</kbd></button>
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">Terminal</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="focus-terminal"><span>Focus Terminal</span><kbd>Ctrl+`</kbd></button>
+            <button type="button" data-command="clear-terminal"><span>Clear Terminal</span><kbd></kbd></button>
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">Help</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="python-docs"><span>Python Documentation</span><kbd></kbd></button>
+            <button type="button" data-command="about"><span>About Hussain Compiler</span><kbd></kbd></button>
+          </div>
+        </div>
+      </nav>
+
+      <div class="window-title" id="windowTitle">main.py — Hussain Compiler</div>
+      <div class="titlebar-actions">
+        <span class="runtime-pill"><i class="status-dot" id="statusDot"></i><span id="runtimeStatus">Python runtime loading</span></span>
+        <span class="pages-badge">WEB IDE</span>
+      </div>
+    </header>
+
+    <div class="workspace" id="workspace">
+      <nav class="activity-bar" aria-label="Activity bar">
+        <button class="activity-button active" id="explorerBtn" type="button" title="Explorer" aria-label="Explorer">▤</button>
+        <button class="activity-button" id="searchBtn" type="button" title="Search in file" aria-label="Search in file">⌕</button>
+        <button class="activity-button" id="runActivityBtn" type="button" title="Run Python" aria-label="Run Python">▷</button>
+        <button class="activity-button" id="extensionsBtn" type="button" title="Python packages" aria-label="Python packages">▦</button>
+        <span class="activity-spacer"></span>
+        <button class="activity-button account-button" id="aboutBtn" type="button" title="About" aria-label="About">●</button>
+      </nav>
+
+      <aside class="sidebar" id="sidebar">
+        <div class="side-heading">
+          <span>EXPLORER</span>
+          <button class="icon-button" id="newFileBtn" type="button" title="New File" aria-label="New File">＋</button>
+        </div>
+        <div class="workspace-root" aria-label="Hussain Workspace">
+          <span class="root-chevron">⌄</span><strong>HUSSAIN WORKSPACE</strong>
+          <span class="root-actions"><button type="button" title="New File" id="rootNewFileBtn" aria-label="New File">＋</button><button type="button" title="Open Files" id="rootOpenFilesBtn" aria-label="Open Files">↥</button></span>
+        </div>
+        <div class="file-list" id="fileList" aria-label="Workspace files"></div>
+        <div class="sidebar-spacer"></div>
+        <section class="package-box" aria-labelledby="packageTitle">
+          <div class="package-heading">
+            <span class="package-icon">▦</span>
+            <div><strong id="packageTitle">PYTHON PACKAGES</strong><small>Install browser-compatible packages</small></div>
+          </div>
+          <form id="packageForm" class="package-form">
+            <input id="packageName" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. requests" aria-label="Package name">
+            <button id="installBtn" type="submit">Install</button>
+          </form>
+          <p class="package-hint">Packages that require native system extensions may not run in WebAssembly.</p>
+        </section>
+        <div class="storage-note"><span class="storage-icon">●</span> Stored in this browser</div>
+      </aside>
+
+      <main class="main-panel" id="mainPanel">
+        <div class="editor-toolbar">
+          <div class="breadcrumbs"><span>HUSSAIN WORKSPACE</span><span class="breadcrumb-separator">›</span><span class="python-file-icon">Py</span><span id="breadcrumbFileName">main.py</span></div>
+          <div class="toolbar-actions">
+            <button class="tool-button" id="openFilesBtn" type="button" title="Open Files">
+              <span class="button-icon">↥</span><span>Open</span>
+            </button>
+            <button class="tool-button" id="saveBtn" type="button" title="Save (Ctrl+S)">
+              <span class="button-icon">▣</span><span>Save</span>
+            </button>
+            <button class="tool-button" id="downloadBtn" type="button" title="Download Current File">
+              <span class="button-icon">↓</span><span>Download</span>
+            </button>
+            <button class="stop-button" id="stopBtn" type="button" disabled>Stop</button>
+            <button class="run-button" id="runBtn" type="button" title="Run Python File (Ctrl+Enter)"><span class="play-icon">▶</span> Run Python <kbd>Ctrl ↵</kbd></button>
+          </div>
+        </div>
+
+        <section class="editor-stage" aria-label="Code editor">
+          <div class="editor-tabbar">
+            <div class="active-file-tab"><span class="python-file-icon">Py</span><span id="activeFileName">main.py</span><i id="dirtyMark" class="dirty-mark" hidden></i></div>
+            <div class="editor-actions"><span id="saveState">Saved</span><button class="icon-button small" id="deleteFileBtn" type="button" title="Delete Current File" aria-label="Delete Current File">×</button></div>
+          </div>
+          <div class="editor-wrap"><textarea id="code" aria-label="Python code editor"></textarea></div>
+          <div class="editor-footer"><span id="cursorPosition">Ln 1, Col 1</span><span>Python&nbsp; · &nbsp;UTF-8&nbsp; · &nbsp;Spaces: 4</span></div>
+        </section>
+
+        <section class="output-panel" aria-label="Terminal">
+          <div class="output-header">
+            <div class="panel-tabs"><button class="panel-tab active" type="button">TERMINAL</button><span class="terminal-profile">Python WebAssembly</span></div>
+            <div class="output-actions"><span id="runState">Ready</span><button class="text-button" id="clearOutputBtn" type="button" title="Clear Terminal">Clear</button></div>
+          </div>
+          <div class="console" id="console" role="log" aria-live="polite" aria-label="Python terminal. Type here when the program requests input." tabindex="0">
+            <div class="welcome-line"><span class="console-prompt">›</span> Python runs in your browser. Type in this terminal when your program calls <b>input()</b>.</div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="status-bar">
+      <div class="status-left"><span class="status-item status-branch">⌘&nbsp; main</span><span class="status-item" id="statusWorkspace">Local Workspace</span></div>
+      <div class="status-right"><span id="statusRuntime">Python 3 · WASM</span><span id="statusEncoding">UTF-8</span><span>Spaces: 4</span></div>
+    </footer>
+
+    <input id="filePicker" type="file" accept=".py,.pyw,.txt,.json,.csv,.md,.toml" multiple hidden>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </div>
+</body>
+</html>
