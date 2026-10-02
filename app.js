@@ -859,3 +859,36 @@ initMenus();
 initShortcuts();
 initSettings();
 initEditor();
+
+
+// Resizable workspace panels and terminal zoom controls.
+(() => {
+  const workspace = document.getElementById('workspace');
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('mainPanel');
+  const output = document.querySelector('.output-panel');
+  const consolePanel = document.getElementById('console');
+  if (!workspace || !sidebar || !main || !output || !consolePanel) return;
+  const read = (key, fallback) => { try { const n=Number(localStorage.getItem(key)); return n>0&&Number.isFinite(n)?n:fallback; } catch (_) { return fallback; } };
+  const save = (key, value) => { try { localStorage.setItem(key,String(Math.round(value))); } catch (_) {} };
+  let sideWidth=Math.min(440,Math.max(180,read('hussain-explorer-width',244)));
+  let terminalHeight=read('hussain-terminal-height',0);
+  let fontSize=Math.min(24,Math.max(10,read('hussain-terminal-font-size',12)));
+  const css=document.createElement('style');
+  css.textContent=`.workspace{grid-template-columns:48px var(--explorer-width,244px) 7px minmax(0,1fr)!important}.sidebar{grid-column:2}.main-panel{grid-column:4;grid-template-rows:36px minmax(150px,1fr) 7px var(--terminal-height,27%)!important}.main-panel.panel-hidden{grid-template-rows:36px minmax(0,1fr) 0 0!important}.panel-splitter{position:relative;z-index:4;touch-action:none;user-select:none;background:#202020}.panel-splitter:hover,.panel-splitter:focus-visible{outline:0;background:#007acc}.explorer-splitter{grid-column:3;grid-row:1;cursor:col-resize;border-inline:1px solid #303031}.terminal-splitter{grid-row:3;cursor:row-resize;border-block:1px solid #303031}.main-panel.panel-hidden .terminal-splitter{display:none}.terminal-zoom{display:inline-flex;align-items:center;gap:3px}.terminal-zoom button{width:22px;height:22px;padding:0;border:1px solid #414141;border-radius:3px;background:#252526;color:#ddd;cursor:pointer;font:13px var(--mono)}.terminal-zoom button:hover{border-color:#007acc;color:#fff}.terminal-zoom button:disabled{opacity:.4}.terminal-zoom-value{min-width:34px;text-align:center;font:10px var(--mono)}@media(max-width:760px){.workspace{grid-template-columns:40px minmax(0,1fr)!important}.main-panel{grid-column:2}.explorer-splitter{display:none}}`;
+  document.head.append(css);
+  workspace.style.setProperty('--explorer-width',sideWidth+'px');
+  if(terminalHeight)main.style.setProperty('--terminal-height',terminalHeight+'px');
+  const makeSplitter=(className,label,orientation,parent,before)=>{const el=document.createElement('div');el.className='panel-splitter '+className;el.setAttribute('role','separator');el.setAttribute('aria-label',label);el.setAttribute('aria-orientation',orientation);el.tabIndex=0;parent.insertBefore(el,before);return el;};
+  const sideSplit=makeSplitter('explorer-splitter','Resize Explorer panel','vertical',workspace,main);
+  const termSplit=makeSplitter('terminal-splitter','Resize terminal panel','horizontal',main,output);
+  const bind=(el,update,pointerValue,keyAxis)=>{el.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();el.setPointerCapture(e.pointerId);const move=p=>update(pointerValue(p));const done=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',done);el.removeEventListener('pointercancel',done);};el.addEventListener('pointermove',move);el.addEventListener('pointerup',done,{once:true});el.addEventListener('pointercancel',done,{once:true});});el.addEventListener('keydown',e=>{const step=e.shiftKey?40:16;const key=keyAxis==='x'?(e.key==='ArrowRight'?step:e.key==='ArrowLeft'?-step:0):(e.key==='ArrowUp'?step:e.key==='ArrowDown'?-step:0);if(!key)return;e.preventDefault();update((keyAxis==='x'?sideWidth:terminalHeight)+key);});};
+  bind(sideSplit,w=>{sideWidth=Math.min(440,Math.max(180,w));workspace.style.setProperty('--explorer-width',sideWidth+'px');sideSplit.setAttribute('aria-valuenow',String(Math.round(sideWidth)));save('hussain-explorer-width',sideWidth);},e=>e.clientX-workspace.getBoundingClientRect().left-48,'x');
+  bind(termSplit,h=>{const max=Math.max(180,main.clientHeight-203);terminalHeight=Math.min(max,Math.max(120,h));main.style.setProperty('--terminal-height',terminalHeight+'px');termSplit.setAttribute('aria-valuenow',String(Math.round(terminalHeight)));save('hussain-terminal-height',terminalHeight);},e=>main.getBoundingClientRect().bottom-e.clientY,'y');
+  const zoom=document.createElement('div');zoom.className='terminal-zoom';zoom.setAttribute('aria-label','Terminal font size');zoom.innerHTML='<button type="button" aria-label="Decrease terminal font size" title="Decrease terminal font size">−</button><span class="terminal-zoom-value" aria-live="polite"></span><button type="button" aria-label="Increase terminal font size" title="Increase terminal font size">+</button>';
+  const outActions=document.querySelector('.output-actions');const label=zoom.querySelector('span');const buttons=zoom.querySelectorAll('button');
+  const applyZoom=()=>{consolePanel.style.setProperty('font-size',fontSize+'px','important');label.textContent=fontSize+'px';buttons[0].disabled=fontSize<=10;buttons[1].disabled=fontSize>=24;};
+  buttons[0].addEventListener('click',()=>{fontSize=Math.max(10,fontSize-1);save('hussain-terminal-font-size',fontSize);applyZoom();});
+  buttons[1].addEventListener('click',()=>{fontSize=Math.min(24,fontSize+1);save('hussain-terminal-font-size',fontSize);applyZoom();});
+  outActions?.prepend(zoom);applyZoom();
+})();
