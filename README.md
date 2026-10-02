@@ -1,6 +1,6 @@
 # Hussain Compiler
 
-Hussain Compiler is a browser-based Python IDE powered by [Pyodide](https://pyodide.org/) and WebAssembly. It lets you write, run, and test Python code directly in the browser with a VS Code-inspired interface—no backend server required.
+Hussain Compiler is a browser-based Python IDE powered by [Pyodide](https://pyodide.org/) and WebAssembly. It lets you write, run, and test Python code directly in the browser with a VS Code-inspired interface.
 
 Website: https://xpxxxu.github.io/hussain-py-compiler/
 
@@ -38,7 +38,7 @@ Open <http://localhost:8000> in a modern browser. Opening `index.html` directly 
 
 ## Python and package support
 
-This is Python running in WebAssembly, not a native system Python installation, and it does not produce executable binaries. The standard library and packages built for Pyodide are supported. `micropip` can install some additional packages from the Pyodide package index.
+This is Python running in WebAssembly, not a native system Python installation, and it does not produce executable binaries. The standard library and packages built for Pyodide are supported. `micropip` can install additional packages.
 
 ## Link
 
