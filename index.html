@@ -215,3 +215,15 @@
   dialog.showModal();
 })();
 </script>
+
+<script>
+(() => {
+ const d=document.querySelector('.welcome-dialog'); if(!d)return;
+ const css=document.createElement('style'); css.textContent='.welcome-dialog{display:flex;flex-direction:column;width:min(760px,calc(100vw - 30px));max-height:92vh;padding:0;overflow:auto}.welcome-dialog::backdrop{background:rgb(0 0 0 / 58%);backdrop-filter:blur(2px)}.welcome-photo{display:block;width:100%;height:auto;max-height:min(38vh,340px);object-fit:contain;object-position:center;background:#eee}.welcome-copy{padding:24px 30px}.welcome-close{position:absolute;right:12px;top:12px;z-index:2;width:36px;height:36px;border:1px solid #777;border-radius:50%;background:#181818d9;color:white;font-size:24px;cursor:pointer}.coffee-image-link{display:inline-flex;align-items:center}.coffee-image{display:block;height:38px;width:auto}.welcome-start{min-width:130px;min-height:40px;background:#0e639c;border-color:#0e639c;color:#fff;font-weight:700;letter-spacing:.35px}.welcome-start:hover{background:#1177bb}@media(max-width:620px){.welcome-image{max-height:34vh}.welcome-content{padding:20px}}'; document.head.append(css);
+ const close=document.createElement('button'); close.className='welcome-close'; close.type='button'; close.setAttribute('aria-label','Close welcome message'); close.textContent='×'; d.prepend(close); close.addEventListener('click',()=>d.close());
+ const coffee=d.querySelector('a[href*="buymeacoffee.com"]'); if(coffee){coffee.className='coffee-image-link';coffee.setAttribute('aria-label','Buy Me a Coffee');coffee.innerHTML='<img class="coffee-image" src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee">';}
+ const star=d.querySelector('a[href*="stargazers"]'); if(star){star.href='https://github.com/HussainAlsari/hussain-py-compiler';star.textContent='★ Star the repo';}
+ const start=d.querySelector('button[data-dismiss]'); if(start){start.textContent='START CODING';start.classList.add('welcome-start');start.addEventListener('click',()=>d.close());}
+ if(d.open)d.close(); window.setTimeout(()=>d.showModal(),800);
+})();
+</script>
