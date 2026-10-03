@@ -897,3 +897,42 @@ initEditor();
 for (const selector of ['.explorer-splitter','.terminal-splitter','.terminal-zoom']) {
   document.querySelectorAll(selector).forEach((element,index)=>{ if(index>0) element.remove(); });
 }
+
+
+// Python autocomplete popup for the CodeMirror editor.
+(() => {
+  const wrapper = document.querySelector('.CodeMirror');
+  const cm = wrapper?.CodeMirror;
+  if (!cm || cm.__hussainAutocomplete) return;
+  cm.__hussainAutocomplete = true;
+  const words = 'and as assert async await break class continue def del elif else except False finally for from global if import in is lambda nonlocal not or pass raise return True try while with yield abs all any bool dict enumerate float input int isinstance len list map max min open print range set sorted str sum tuple type zip append capitalize clear copy count extend format get insert items join keys lower pop remove replace split strip upper values'.split(/\s+/);
+  const menu = document.createElement('div');
+  menu.className = 'hussain-completion-menu';
+  menu.setAttribute('role','listbox');
+  menu.setAttribute('aria-label','Python completion suggestions');
+  menu.hidden = true;
+  document.body.append(menu);
+  let choices = []; let selected = 0; let start = null;
+  const hide = () => { menu.hidden = true; menu.replaceChildren(); choices = []; start = null; };
+  const accept = (index = selected) => {
+    const choice = choices[index]; if (!choice || start === null) return;
+    const cur = cm.getCursor(); cm.replaceRange(choice,{line:cur.line,ch:start},cur,'+autocomplete'); hide(); cm.focus();
+  };
+  const update = (force = false) => {
+    const cur = cm.getCursor(); const before = cm.getLine(cur.line).slice(0,cur.ch); const match = before.match(/[A-Za-z_]\w*$/);
+    if (!match || (!force && match[0].length < 1)) return hide();
+    const token = cm.getTokenAt(cur); if (!force && /^(comment|string|string-2)$/.test(token.type || '')) return hide();
+    const prefix = match[0]; const identifiers = cm.getValue().match(/\b[A-Za-z_]\w*\b/g) || [];
+    choices = [...new Set([...words,...identifiers])].filter(w => w.toLowerCase().startsWith(prefix.toLowerCase()) && w !== prefix).sort((a,b) => Number(!a.startsWith(prefix))-Number(!b.startsWith(prefix)) || a.localeCompare(b)).slice(0,8);
+    if (!choices.length) return hide(); start = cur.ch-prefix.length; selected = 0;
+    menu.replaceChildren(...choices.map((word,index) => {
+      const item=document.createElement('button'); item.type='button'; item.className='hussain-completion-option'; item.setAttribute('role','option'); item.setAttribute('aria-selected',String(index===selected)); item.textContent=word;
+      item.addEventListener('mousedown',e=>e.preventDefault()); item.addEventListener('click',()=>accept(index)); return item;
+    }));
+    const caret=cm.cursorCoords(null,'page'); menu.style.left=Math.max(4,caret.left-window.scrollX)+'px'; menu.style.top=Math.max(4,caret.bottom-window.scrollY)+'px'; menu.hidden=false;
+  };
+  const move=delta=>{if(!choices.length)return false;selected=(selected+delta+choices.length)%choices.length;[...menu.children].forEach((item,index)=>item.setAttribute('aria-selected',String(index===selected)));return true;};
+  cm.on('inputRead',()=>window.setTimeout(()=>update(),0)); cm.on('cursorActivity',hide);
+  cm.addKeyMap({ArrowDown:()=>move(1),ArrowUp:()=>move(-1),Enter:()=>{if(menu.hidden)return false;accept();return true;},Tab:()=>{if(menu.hidden)return false;accept();return true;},Esc:()=>{if(menu.hidden)return false;hide();return true;},'Ctrl-Space':()=>{update(true);return true;},'Cmd-Space':()=>{update(true);return true;}});
+  const style=document.createElement('style'); style.textContent='.hussain-completion-menu{position:fixed;z-index:9999;width:min(280px,calc(100vw - 24px));max-height:220px;overflow:auto;padding:4px;border:1px solid #454545;border-radius:5px;background:#252526;box-shadow:0 8px 22px #0009}.hussain-completion-menu[hidden]{display:none}.hussain-completion-option{display:block;width:100%;padding:5px 9px;border:0;border-radius:3px;background:transparent;color:#d4d4d4;cursor:pointer;font:12px Consolas,monospace;text-align:left}.hussain-completion-option:hover,.hussain-completion-option[aria-selected=true]{outline:0;background:#094771;color:#fff}'; document.head.append(style);
+})();
