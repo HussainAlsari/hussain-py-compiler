@@ -223,6 +223,15 @@ function findSourceErrorLine(error, filename) {
   return syntaxError ? Number(syntaxError[2]) : null;
 }
 
+function formatUserError(error, filename) {
+  const details = String(error?.message || error || "Python error").trim();
+  const lines = details.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const exception = [...lines].reverse().find((line) => /^[A-Za-z_]\w*(?:Error|Exception):/.test(line));
+  const summary = exception || lines.filter((line) => !line.startsWith("at ") && !/pyodide(?:\.asm)?\.mjs/i.test(line)).at(-1) || "Python error.";
+  const line = filename ? findSourceErrorLine(error, filename) : null;
+  return line ? `${safeRelativePath(filename)} — line ${line}: ${summary}` : summary.slice(0, 500);
+}
+
 runtime.then(async (pyodide) => {
   const version = pyodide.runPython("import sys; sys.version.split()[0]");
   emit("ready", { version });
@@ -239,7 +248,7 @@ self.addEventListener("message", async (event) => {
   } catch (error) {
     emit("error", {
       id: message.id,
-      message: String(error?.stack || error),
+      message: formatUserError(error, message.type === "run" ? message.filename : null),
       filename: message.type === "run" ? safeRelativePath(message.filename) : null,
       line: message.type === "run" ? findSourceErrorLine(error, message.filename) : null,
     });
