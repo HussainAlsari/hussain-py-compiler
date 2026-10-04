@@ -25,7 +25,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js" defer></script>
-    <script src="./app.js?v=77bec3b" defer></script>
+    <script src="./app.js?v=5ba2ec2" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -200,7 +200,11 @@
         <span><strong>Auto-close brackets and quotes</strong><small>Insert the matching ) ] } or quote as you type.</small></span>
         <input id="autoCloseBracketsSetting" type="checkbox" checked>
       </label>
-      <label class="setting-row font-setting" for="fontSizeSetting">
+            <label class="setting-row" for="autoClearTerminalSetting">
+        <span><strong>Clear terminal before each run</strong><small>Replace previous output with the latest run.</small></span>
+        <input id="autoClearTerminalSetting" type="checkbox" checked>
+      </label>
+<label class="setting-row font-setting" for="fontSizeSetting">
         <span><strong>Editor font size</strong><small>Adjust how large code appears in the editor.</small></span>
         <span class="font-size-control"><input id="fontSizeSetting" type="range" min="10" max="24" step="1" value="13"><output id="fontSizeValue" for="fontSizeSetting">13 px</output></span>
       </label>
