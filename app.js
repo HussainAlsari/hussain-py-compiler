@@ -561,7 +561,7 @@ function updateFileTitle() {
   elements.breadcrumbFileName.textContent = shortName;
   elements.breadcrumbFileName.title = name;
   elements.windowTitle.textContent = `${shortName} — Hussain Compiler`;
-  document.title = `${shortName} — Hussain Compiler`;
+  document.title = "Hussain Compiler — Online Python IDE";
 }
 
 function findInEditor() {
