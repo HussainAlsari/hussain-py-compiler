@@ -1,6 +1,6 @@
 const STORAGE_KEY = "hussain-compiler-workspace-v1";
 const SETTINGS_KEY = "hussain-compiler-settings-v1";
-const DEFAULT_SETTINGS = { autoCloseBrackets: true, fontSize: 13 };
+const DEFAULT_SETTINGS = { autoCloseBrackets: true, fontSize: 13, autoClearTerminal: true };
 const SAMPLE = `# Welcome to Hussain Compiler\n# Write Python here, then click Run Python\n\ndef greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("Python"))\n`;
 const PACKAGE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*(?:\[[A-Za-z0-9_,.-]+\])?(?:(?:===|==|~=|!=|<=|>=|<|>)\s*[A-Za-z0-9.*+_-]+(?:,(?:===|==|~=|!=|<=|>=|<|>)\s*[A-Za-z0-9.*+_-]+)*)?$/;
 
@@ -11,7 +11,7 @@ const elements = Object.fromEntries([
   "clearOutputBtn", "downloadOutputImageBtn", "packageForm", "packageName", "installBtn", "toast", "workspace",
   "mainPanel", "explorerBtn", "searchBtn", "runActivityBtn", "extensionsBtn", "aboutBtn",
   "rootNewFileBtn", "rootOpenFilesBtn", "windowTitle", "breadcrumbFileName", "toggleWordWrapItem",
-  "settingsDialog", "settingsCloseBtn", "settingsDoneBtn", "autoCloseBracketsSetting", "fontSizeSetting", "fontSizeValue",
+  "settingsDialog", "settingsCloseBtn", "settingsDoneBtn", "autoCloseBracketsSetting", "autoClearTerminalSetting", "fontSizeSetting", "fontSizeValue",
 ].map((id) => [id, document.getElementById(id)]));
 
 let savedActiveFile = null;
@@ -37,6 +37,7 @@ function readSettings() {
     const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "null");
     return {
       autoCloseBrackets: typeof saved?.autoCloseBrackets === "boolean" ? saved.autoCloseBrackets : DEFAULT_SETTINGS.autoCloseBrackets,
+      autoClearTerminal: typeof saved?.autoClearTerminal === "boolean" ? saved.autoClearTerminal : DEFAULT_SETTINGS.autoClearTerminal,
       fontSize: Number.isInteger(saved?.fontSize) ? Math.min(24, Math.max(10, saved.fontSize)) : DEFAULT_SETTINGS.fontSize,
     };
   } catch (_) {
@@ -452,6 +453,7 @@ async function runCode() {
   elements.installBtn.disabled = true;
   elements.stopBtn.disabled = false;
   elements.runState.textContent = "Running…";
+  if (settings.autoClearTerminal) elements.console.replaceChildren();
   appendOutput(`▶ ${activeFile}`, "system");
   try {
     const activeWorker = await ensureRuntime();
@@ -655,12 +657,17 @@ function openSettings() {
 
 function initSettings() {
   elements.autoCloseBracketsSetting.checked = settings.autoCloseBrackets;
+  elements.autoClearTerminalSetting.checked = settings.autoClearTerminal;
   elements.fontSizeSetting.value = String(settings.fontSize);
   elements.fontSizeValue.value = `${settings.fontSize} px`;
   elements.fontSizeValue.textContent = `${settings.fontSize} px`;
   elements.autoCloseBracketsSetting.addEventListener("change", () => {
     settings.autoCloseBrackets = elements.autoCloseBracketsSetting.checked;
     applyEditorSettings();
+    saveSettings();
+  });
+  elements.autoClearTerminalSetting.addEventListener("change", () => {
+    settings.autoClearTerminal = elements.autoClearTerminalSetting.checked;
     saveSettings();
   });
   elements.fontSizeSetting.addEventListener("input", () => {
