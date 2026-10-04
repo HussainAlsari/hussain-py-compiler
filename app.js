@@ -107,119 +107,112 @@ function appendOutput(text, kind = "") {
 }
 
 async function downloadInputOutputImage() {
-  const width = 1280;
-  const scale = 1.5;
-  const padding = 48;
-  const contentWidth = width - padding * 2;
-  const font = '15px Consolas, "Courier New", monospace';
+  const width = 1200;
+  const scale = 1.35;
+  const pad = 34;
+  const cardX = pad;
+  const cardW = width - pad * 2;
+  const codeFont = '14px Consolas, "Courier New", monospace';
+  const lineH = 21;
   const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d");
-  if (!context) {
-    showToast("Could not create the PNG image.", true);
-    return;
-  }
-  context.font = font;
-
-  const wrapText = (text) => {
-    const wrapped = [];
-    for (const sourceLine of String(text).split("\n")) {
-      if (!sourceLine) {
-        wrapped.push("");
-        continue;
-      }
+  const ctx = canvas.getContext("2d");
+  if (!ctx) { showToast("Could not create the PNG image.", true); return; }
+  ctx.font = codeFont;
+  const wrap = (text, maxWidth) => {
+    const result = [];
+    for (const sourceLine of String(text).replace(/\r/g, "").split("\n")) {
+      if (!sourceLine) { result.push(""); continue; }
       let line = "";
-      for (const character of sourceLine) {
-        if (line && context.measureText(line + character).width > contentWidth) {
-          wrapped.push(line);
-          line = "";
-        }
-        line += character;
+      for (const char of sourceLine) {
+        if (line && ctx.measureText(line + char).width > maxWidth) { result.push(line); line = ""; }
+        line += char;
       }
-      wrapped.push(line);
+      result.push(line);
     }
-    return wrapped;
+    return result;
   };
-
-  const sections = [{ title: `INPUT · ${activeFile || "main.py"}`, color: "#75beff", lines: wrapText(editor?.getValue() || "") }, {
-    title: "OUTPUT · TERMINAL",
-    color: "#75beff",
-    lines: [...elements.console.children].flatMap((node) => {
-      const text = node.innerText ?? node.textContent ?? "";
-      const isWelcome = node.classList.contains("welcome-line");
-      const lineColor = node.classList.contains("error") ? "#f48771" :
-        node.classList.contains("system") || isWelcome ? "#a0a0a0" : "#d4d4d4";
-      return wrapText(text).map((line) => ({ text: line, color: lineColor }));
-    }),
-  }];
-
-  const lineHeight = 23;
-  const sectionGap = 27;
-  const headerHeight = 122;
-  const maxLines = 700;
-  let rows = 0;
-  for (const section of sections) {
-    section.rendered = section.lines.map((line) => typeof line === "string"
-      ? { text: line, color: "#d4d4d4" }
-      : line);
-    if (rows + section.rendered.length > maxLines) {
-      const availableLines = Math.max(0, maxLines - rows - 1);
-      section.rendered = availableLines ? section.rendered.slice(-availableLines) : [];
-      if (rows < maxLines) section.rendered.unshift({ text: "… earlier lines omitted to keep the image size manageable …", color: "#858585" });
+  const maxRows = 220;
+  const source = editor?.getValue() || "";
+  let codeLines = wrap(source, cardW - 104);
+  const outputLines = [...elements.console.children].flatMap((node) => {
+    const text = node.innerText ?? node.textContent ?? "";
+    const color = node.classList.contains("error") ? "#f48771" : node.classList.contains("system") || node.classList.contains("welcome-line") ? "#9da7b3" : "#d4d4d4";
+    return wrap(text, cardW - 58).map((text) => ({ text, color }));
+  });
+  const limitRows = (lines) => lines.length > maxRows
+    ? [{ text: `… ${lines.length - maxRows} earlier lines omitted …`, color: "#858585" }, ...lines.slice(-(maxRows - 1))]
+    : lines;
+  codeLines = limitRows(codeLines);
+  const renderedOutput = limitRows(outputLines);
+  const codeH = Math.max(110, 58 + codeLines.length * lineH);
+  const outputH = Math.max(110, 58 + renderedOutput.length * lineH);
+  const headerH = 100;
+  const footerH = 44;
+  const height = headerH + codeH + 20 + outputH + footerH + pad;
+  canvas.width = Math.round(width * scale);
+  canvas.height = Math.round(height * scale);
+  ctx.scale(scale, scale);
+  ctx.fillStyle = "#181818";
+  ctx.fillRect(0, 0, width, height);
+  const gradient = ctx.createLinearGradient(0, 0, width, headerH);
+  gradient.addColorStop(0, "#20262e");
+  gradient.addColorStop(1, "#1b1b1b");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, headerH);
+  ctx.fillStyle = "#007acc";
+  ctx.beginPath(); ctx.roundRect(pad, 25, 42, 42, 9); ctx.fill();
+  ctx.fillStyle = "#fff"; ctx.font = '700 16px Arial, sans-serif'; ctx.textAlign = "center"; ctx.fillText("HC", pad + 21, 52); ctx.textAlign = "left";
+  ctx.fillStyle = "#f4f4f4"; ctx.font = '600 23px Arial, sans-serif'; ctx.fillText("Hussain Compiler", pad + 56, 43);
+  ctx.fillStyle = "#aeb7c2"; ctx.font = '13px Arial, sans-serif'; ctx.fillText("Python · Input & Output", pad + 56, 65);
+  ctx.textAlign = "right"; ctx.fillStyle = "#9099a3"; ctx.font = '12px Arial, sans-serif'; ctx.fillText(new Date().toLocaleString(), width - pad, 42); ctx.textAlign = "left";
+  const roundedCard = (x, y, w, h, fill, stroke) => {
+    ctx.fillStyle = fill; ctx.strokeStyle = stroke; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.roundRect(x, y, w, h, 9); ctx.fill(); ctx.stroke();
+  };
+  const drawHeader = (title, subtitle, y, h, accent) => {
+    roundedCard(cardX, y, cardW, h, "#1e1e1e", "#383838");
+    ctx.save(); ctx.beginPath(); ctx.roundRect(cardX, y, cardW, 44, 9); ctx.clip(); ctx.fillStyle = "#252526"; ctx.fillRect(cardX, y, cardW, 44); ctx.restore();
+    ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(cardX + 19, y + 22, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#e6e6e6"; ctx.font = '600 13px Arial, sans-serif'; ctx.fillText(title, cardX + 32, y + 26);
+    ctx.fillStyle = "#858585"; ctx.font = '12px Consolas, monospace'; ctx.textAlign = "right"; ctx.fillText(subtitle, cardX + cardW - 17, y + 26); ctx.textAlign = "left";
+  };
+  const codeY = headerH;
+  drawHeader(`INPUT · ${activeFile || "main.py"}`, "PYTHON SOURCE", codeY, codeH, "#75beff");
+  ctx.fillStyle = "#252526"; ctx.fillRect(cardX + 1, codeY + 45, 48, codeH - 46);
+  const tokenRe = /#[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b(?:def|class|return|if|elif|else|for|while|in|and|or|not|is|None|True|False|import|from|as|try|except|finally|with|lambda|pass|break|continue|yield|async|await|global|raise|del|assert)\b|\b\d+(?:\.\d+)?\b/g;
+  codeLines.forEach((line, index) => {
+    const y = codeY + 67 + index * lineH;
+    ctx.fillStyle = "#858585"; ctx.font = codeFont; ctx.textAlign = "right"; ctx.fillText(String(index + 1), cardX + 39, y); ctx.textAlign = "left";
+    let cursor = 0; let match; tokenRe.lastIndex = 0;
+    while ((match = tokenRe.exec(line))) {
+      if (match.index > cursor) { ctx.fillStyle = "#d4d4d4"; ctx.fillText(line.slice(cursor, match.index), cardX + 62 + ctx.measureText(line.slice(0, cursor)).width, y); }
+      const token = match[0];
+      ctx.fillStyle = token.startsWith("#") ? "#6a9955" : token.startsWith('"') || token.startsWith("'") ? "#ce9178" : /^\d/.test(token) ? "#b5cea8" : "#c586c0";
+      ctx.fillText(token, cardX + 62 + ctx.measureText(line.slice(0, match.index)).width, y);
+      cursor = match.index + token.length;
     }
-    rows += section.rendered.length;
-  }
-
-  const height = Math.min(20000, headerHeight + sections.reduce((sum, section) => sum + sectionGap + (section.rendered.length + 1) * lineHeight, 0) + padding);
-  canvas.width = width * scale;
-  canvas.height = height * scale;
-  context.scale(scale, scale);
-  context.fillStyle = "#1e1e1e";
-  context.fillRect(0, 0, width, height);
-  context.fillStyle = "#252526";
-  context.fillRect(0, 0, width, 68);
-  context.fillStyle = "#ffffff";
-  context.font = '600 20px Arial, sans-serif';
-  context.fillText("Hussain Compiler", padding, 39);
-  context.fillStyle = "#aaaaaa";
-  context.font = '14px Arial, sans-serif';
-  context.fillText("Python input and output", padding, 57);
-  context.fillStyle = "#858585";
-  context.textAlign = "right";
-  context.fillText(new Date().toLocaleString(), width - padding, 39);
-  context.textAlign = "left";
-
-  let y = headerHeight;
-  context.font = font;
-  for (const section of sections) {
-    context.fillStyle = section.color;
-    context.font = '600 14px Arial, sans-serif';
-    context.fillText(section.title, padding, y);
-    y += sectionGap;
-    context.font = font;
-    for (const line of section.rendered) {
-      if (y > height - padding) break;
-      context.fillStyle = line.color;
-      context.fillText(line.text, padding, y);
-      y += lineHeight;
-    }
-    y += lineHeight;
-  }
-
+    if (cursor < line.length) { ctx.fillStyle = "#d4d4d4"; ctx.fillText(line.slice(cursor), cardX + 62 + ctx.measureText(line.slice(0, cursor)).width, y); }
+  });
+  const outY = codeY + codeH + 20;
+  drawHeader("OUTPUT · TERMINAL", `${renderedOutput.length} LINE${renderedOutput.length === 1 ? "" : "S"}`, outY, outputH, "#89d185");
+  renderedOutput.forEach((line, index) => {
+    const y = outY + 67 + index * lineH;
+    ctx.fillStyle = line.color; ctx.font = codeFont; ctx.fillText(line.text, cardX + 18, y);
+  });
+  ctx.fillStyle = "#252526"; ctx.fillRect(0, height - footerH, width, footerH);
+  ctx.fillStyle = "#007acc"; ctx.fillRect(pad, height - footerH + 17, 6, 6);
+  ctx.fillStyle = "#9da7b3"; ctx.font = '12px Arial, sans-serif'; ctx.fillText("Created with Hussain Compiler", pad + 16, height - 22);
+  ctx.textAlign = "right"; ctx.fillStyle = "#707070"; ctx.fillText("PYTHON WORKSPACE", width - pad, height - 22); ctx.textAlign = "left";
   try {
     const blob = await new Promise((resolve, reject) => canvas.toBlob((image) => image ? resolve(image) : reject(new Error("PNG encoding failed")), "image/png"));
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     const baseName = (activeFile || "main.py").split("/").pop().replace(/\.py$/i, "") || "python";
-    link.href = url;
-    link.download = `${baseName}-input-output.png`;
-    link.click();
+    link.href = url; link.download = `${baseName}-input-output.png`; link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     showToast("Input and output saved as a PNG image.");
-  } catch (error) {
-    showToast(`Could not download image: ${error.message}`, true);
-  }
+  } catch (error) { showToast(`Could not download image: ${error.message}`, true); }
 }
-
 function safeFileName(name) {
   const normalized = String(name || "").trim().replaceAll("\\", "/");
   const parts = normalized.split("/").filter((part) => part && part !== ".");
