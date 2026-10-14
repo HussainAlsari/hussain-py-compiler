@@ -42,3 +42,23 @@ This is Python running in WebAssembly, not a native system Python installation, 
 - WebAssembly Python editor by Hussain
 - Python editor made by Hussian
 
+
+## Python Courses
+
+Click the 🎓 button in the activity bar to open built-in courses: Python Basics, Data Structures and Functions, and Intermediate Python (15 lessons).
+Each lesson explains a topic, loads starter code into the editor, and lets you press **Check** to compare your program's output with the expected result. Hints, solutions, and progress (saved in the browser) are included.
+Lesson content lives in `courses.js`; add or edit lessons in the `COURSES` array.
+
+## Languages
+
+Open **Settings > Editor Settings…** and choose:
+
+- **Interface language**: translates the menus, buttons, messages and prompts (English and العربية are built in; Arabic switches the text direction automatically).
+- **Course language**: the language of the lessons. It can differ from the interface language.
+- **Any other language**: click **Export template**, translate the values in the JSON file (keep the keys, `{placeholders}`, and code inside `<pre>`/`<code>`), set `code` (for example `fr`), `name` and `dir`, then **Import pack**. Imported packs are stored in this browser. To ship a pack with the site, save it as `lang/<code>.js` using `HC.register({...})` like `lang/ar.js` and add its `<script>` tag to `index.html`.
+
+Each lesson also has an **In simple words** analogy, a **Line by line** walkthrough of the example, **Common mistakes**, and a **Try the example** button.
+
+## Task panel
+
+Inside a lesson file, the **Task** button in the lesson bar shows or hides a panel with the question (in the course language), the expected output, and a requirements list that ticks itself as your code satisfies each one. When **Check** fails, the panel shows your output next to the expected output with the differing lines highlighted. Lesson files only get a short two-line comment; enable **Full task comment in lesson files** in Editor Settings to put the whole question in the file instead.

@@ -1,0 +1,8 @@
+.lang-select { min-width: 150px; max-width: 220px; padding: 6px 8px; border: 1px solid #454545; border-radius: 6px; background: #1e1e1e; color: #ddd; font: inherit; }
+.lang-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.lang-actions button { padding: 5px 10px; border: 1px solid #454545; border-radius: 6px; background: #252526; color: #ddd; font: inherit; cursor: pointer; }
+.lang-actions button:hover { background: #2a2d2e; }
+.lang-row { align-items: center; }
+html[data-rtl] :is(.menu-dropdown, .settings-dialog, .welcome-copy, .toast, .package-box, .courses-dialog .cd-head, .lesson-bar, .runtime-pill) { direction: rtl; }
+html[data-rtl] :is(pre, code, kbd, .CodeMirror, .console) { direction: ltr; text-align: left; unicode-bidi: isolate; }
+html[data-rtl] .menu-dropdown button { text-align: right; }
