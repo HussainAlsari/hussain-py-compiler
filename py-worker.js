@@ -181,6 +181,7 @@ async function handle(message) {
     pyodide.globals.set("__hussain_source", message.code);
     pyodide.globals.set("__hussain_filename", `${root}/${filename}`);
     pyodide.runPython(INPUT_TRANSFORMER);
+    emit("execution-start", { id: message.id });
     const result = await pyodide.runPythonAsync("await __hussain_run(__hussain_source, __hussain_filename)");
     pyodide.globals.delete("__hussain_source");
     pyodide.globals.delete("__hussain_filename");

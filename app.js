@@ -27,10 +27,67 @@ let busy = false;
 let saveTimer = 0;
 let toastTimer = 0;
 let operationId = 0;
+let executionTimer = 0;
 let pendingInputRequest = null;
 let pendingInputEditor = null;
 let settings = readSettings();
 let errorLine = null;
+
+function hasPotentiallyUnboundedLoop(source) {
+  const lines = String(source).replace(/\r\n?/g, "\n").split("\n");
+  const keywords = new Set(["and", "or", "not", "is", "in", "if", "else", "True", "False", "None"]);
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index].replace(/#.*$/, "");
+    const match = /^([ \t]*)while\s+(.+?)\s*:(.*)$/.exec(line);
+    if (!match) continue;
+    const loopIndent = match[1].replace(/\t/g, "    ").length;
+    const body = [];
+    if (match[3].trim()) body.push({ indent: loopIndent + 1, code: match[3].trim() });
+    for (let bodyIndex = index + 1; bodyIndex < lines.length; bodyIndex += 1) {
+      const code = lines[bodyIndex].replace(/#.*$/, "");
+      if (!code.trim()) continue;
+      const indent = (code.match(/^[ \t]*/) || [""])[0].replace(/\t/g, "    ").length;
+      if (indent <= loopIndent) break;
+      body.push({ indent, code: code.trim() });
+    }
+    if (!body.length) continue;
+    const bodyIndent = Math.min(...body.map((item) => item.indent));
+    if (body.some((item) => item.indent === bodyIndent && /^break(?:\s|;|$)/.test(item.code))) continue;
+    const names = (match[2].match(/[A-Za-z_]\w*/g) || []).filter((name) => !keywords.has(name));
+    const changesCondition = names.some((name) => {
+      const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const assignment = new RegExp(`(?:^|[^\\w.])${escaped}\\s*(?:\\+=|-=|\\*=|/=|//=|%=|\\*\\*=|&=|\\|=|\\^=|<<=|>>=|:=|=(?!=))`);
+      const loopTarget = new RegExp(`\\bfor\\s+${escaped}\\s+in\\b`);
+      const mutatingMethod = new RegExp(`\\b${escaped}\\s*\\.\\s*(?:append|extend|insert|pop|remove|clear|update|add|discard)\\s*\\(`);
+      return body.some(({ code }) => assignment.test(code) || loopTarget.test(code) || mutatingMethod.test(code));
+    });
+    if (!names.length || !changesCondition) return true;
+  }
+  return false;
+}
+
+function clearExecutionTimer() {
+  clearTimeout(executionTimer);
+  executionTimer = 0;
+}
+
+function armExecutionTimer(id) {
+  clearExecutionTimer();
+  if (!busy || pendingInputRequest !== null || operationId !== id) return;
+  executionTimer = window.setTimeout(() => {
+    if (!busy || operationId !== id) return;
+    worker?.terminate();
+    worker = null;
+    runtimePromise = null;
+    rejectRuntimePromise?.(new Error("Execution timed out."));
+    rejectRuntimePromise = null;
+    operationId += 1;
+    appendOutput("Execution stopped after 10 seconds because it may be stuck in a loop.", "error");
+    elements.runState.textContent = "Execution timed out";
+    setRuntimeStatus("Python session reset", "idle");
+    finishOperation();
+  }, 10000);
+}
 
 function readSettings() {
   try {
@@ -342,7 +399,7 @@ function ensureRuntime() {
   appendOutput("Preparing Python in the background. The first launch downloads the runtime; your browser can reuse cached files later.", "system");
   runtimePromise = new Promise((resolve, reject) => {
     rejectRuntimePromise = reject;
-    worker = new Worker("./py-worker.js", { type: "module" });
+    worker = new Worker("./py-worker.js?v=loop-guard", { type: "module" });
     worker.addEventListener("message", (event) => {
       const message = event.data || {};
       if (message.type === "ready") {
@@ -367,15 +424,19 @@ function ensureRuntime() {
       } else if (message.type === "progress") {
         elements.runState.textContent = message.text;
         setRuntimeStatus("Preparing Python…", "busy");
+      } else if (message.type === "execution-start") {
+        armExecutionTimer(message.id);
       } else if (message.type === "installed") {
         appendOutput(`${message.package} installed for this browser session.`, "system");
       } else if (message.type === "input-request") {
+        clearExecutionTimer();
         beginTerminalInput(message);
       } else if (message.type === "error") {
         appendOutput(message.message, "error");
         showErrorLocation(message.line, message.filename);
         setRuntimeStatus("Execution error", "error");
       } else if (message.type === "done") {
+        clearExecutionTimer();
         pendingInputRequest = null;
         if (pendingInputEditor) pendingInputEditor.contentEditable = "false";
         pendingInputEditor = null;
@@ -391,6 +452,7 @@ function ensureRuntime() {
       }
     });
     worker.addEventListener("error", (event) => {
+      clearExecutionTimer();
       setRuntimeStatus("Could not load runtime", "error");
       if (!busy) elements.runState.textContent = "Could not load Python";
       rejectRuntimePromise?.(event.error || new Error(event.message));
@@ -405,6 +467,7 @@ function ensureRuntime() {
 }
 
 function finishOperation() {
+  clearExecutionTimer();
   pendingInputRequest = null;
   if (pendingInputEditor) pendingInputEditor.contentEditable = "false";
   pendingInputEditor = null;
@@ -440,12 +503,14 @@ function showErrorLocation(lineNumber, filename) {
 async function runCode() {
   if (busy || !editor) return;
   clearErrorLocation();
+  const code = editor.getValue();
+  if (hasPotentiallyUnboundedLoop(code)
+    && !confirm("This while loop may never end. Continue running it anyway? You can stop it if needed.")) return;
   saveWorkspace();
   const filename = activeFile;
-  const code = editor.getValue();
   const workspaceFiles = Object.assign({}, files, { [filename]: code });
   busy = true;
-  operationId += 1;
+  const runId = ++operationId;
   elements.runBtn.disabled = true;
   elements.installBtn.disabled = true;
   elements.stopBtn.disabled = false;
@@ -457,7 +522,7 @@ async function runCode() {
     if (!busy || activeWorker !== worker) return;
     setRuntimeStatus("Running program…", "busy");
     activeWorker.postMessage({
-      type: "run", id: operationId, files: workspaceFiles, filename, code,
+      type: "run", id: runId, files: workspaceFiles, filename, code,
     });
   } catch (error) {
     appendOutput(String(error?.message || error), "error");
@@ -496,6 +561,7 @@ async function installPackage(event) {
 
 function stopExecution() {
   if (!busy) return;
+  clearExecutionTimer();
   worker?.terminate();
   worker = null;
   runtimePromise = null;
@@ -551,6 +617,7 @@ function submitTerminalInput(event) {
   pendingInputEditor = null;
   elements.clearOutputBtn.disabled = false;
   elements.runState.textContent = "Running…";
+  armExecutionTimer(operationId);
 }
 
 function handleTerminalClick() {

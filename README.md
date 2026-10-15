@@ -14,6 +14,7 @@ https://hussaincompiler.com/
 - Python errors point to their source line in the editor when the traceback includes a matching file and line.
 - File, Edit, Selection, View, Settings, Run, Terminal, and Help menus, plus common keyboard shortcuts.
 - Run Python programs in a Web Worker. `input()` requests appear directly in the terminal; type there and press Enter.
+- Warn about likely endless `while` loops and stop code that runs continuously for 10 seconds; time spent waiting for `input()` is excluded.
 - Start the Python runtime in the background as you begin typing, with status updates while Python and imported packages load.
 - Multiple workspace files, file import, local browser storage, and file download.
 - Export the active Python input and terminal output together as a styled PNG image.
