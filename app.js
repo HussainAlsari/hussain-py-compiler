@@ -399,7 +399,7 @@ function ensureRuntime() {
   appendOutput("Preparing Python in the background. The first launch downloads the runtime; your browser can reuse cached files later.", "system");
   runtimePromise = new Promise((resolve, reject) => {
     rejectRuntimePromise = reject;
-    worker = new Worker("./py-worker.js?v=loop-guard", { type: "module" });
+    worker = new Worker("./py-worker.js?v=fresh-run-namespace", { type: "module" });
     worker.addEventListener("message", (event) => {
       const message = event.data || {};
       if (message.type === "ready") {
