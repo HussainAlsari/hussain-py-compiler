@@ -141,7 +141,13 @@ async def __hussain_run(source, filename):
     tree = _HussainInputRewriter(async_names).visit(tree)
     ast.fix_missing_locations(tree)
     compiled = compile(tree, filename, "exec", flags=ast.PyCF_ALLOW_TOP_LEVEL_AWAIT)
-    result = eval(compiled, globals())
+    namespace = {
+        "__name__": "__main__",
+        "__file__": filename,
+        "__builtins__": __builtins__,
+        "__hussain_input": __hussain_input,
+    }
+    result = eval(compiled, namespace)
     if result is not None:
         await result
     return None
@@ -173,8 +179,6 @@ async function handle(message) {
   if (message.type === "run") {
     const root = await syncFiles(pyodide, message.files);
     const filename = safeRelativePath(message.filename) || "main.py";
-    pyodide.globals.set("__name__", "__main__");
-    pyodide.globals.set("__file__", `${root}/${filename}`);
     await pyodide.loadPackagesFromImports(message.code, {
       messageCallback: (text) => emit("progress", { text: String(text) }),
     });
