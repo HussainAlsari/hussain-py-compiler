@@ -12,7 +12,7 @@
 .cd-main { overflow: auto; padding: 20px 24px; line-height: 1.65; }
 .cd-main h2 { margin: 0 0 12px; font-size: 20px; }
 .cd-main pre, .cd-main code { font-family: Consolas, "Courier New", monospace; }
-.cd-main pre { padding: 12px 14px; border-radius: 8px; background: #111; color: #d4d4d4; overflow: auto; }
+.cd-main pre { padding: 12px 14px; border: 1px solid #303b48; border-radius: 8px; background: #111820; color: #dce5ef; direction: ltr; text-align: left; line-height: 1.7; overflow: auto; tab-size: 4; }
 .cd-main code { padding: 1px 5px; border-radius: 4px; background: #2d2d2d; }
 .cd-main pre code { padding: 0; background: none; }
 .cd-task { margin: 16px 0; padding: 12px 14px; border-left: 3px solid #007acc; background: #252526; border-radius: 4px; }
@@ -33,16 +33,43 @@
 .cd-simple { margin: 0 0 14px; padding: 12px 14px; border-radius: 8px; background: #1f3a2a; border: 1px solid #2f5a42; }
 .cd-simple b, .cd-walk > b, .cd-mistakes > b, .cd-task > b { display: block; margin-bottom: 4px; }
 .cd-simple p { margin: 0; color: #d6f0de; font-size: 15px; }
+.cd-example { margin: 14px 0; padding: 14px; border: 1px solid #354355; border-radius: 10px; background: linear-gradient(145deg, #202a36, #1b242f); box-shadow: 0 8px 24px #0002; }
+.cd-example-title { display: block; margin-bottom: 12px; color: #dcecff; font-size: 15px; }
+.cd-io-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr); gap: 12px; direction: ltr; }
+.cd-io-card { min-width: 0; overflow: hidden; border: 1px solid #344252; border-radius: 8px; background: #111820; }
+.cd-io-card > b { display: flex; align-items: center; gap: 7px; margin: 0; padding: 8px 11px; border-bottom: 1px solid #303b48; color: #dce5ef; font-size: 12px; letter-spacing: .02em; }
+.cd-io-card > b::before { width: 7px; height: 7px; border-radius: 50%; background: #68c7d5; content: ""; }
+.cd-example-code .CodeMirror, .cd-inline-code .CodeMirror { height: auto; min-height: 56px; padding: 8px 0; background: #111820; color: #dce5ef; font: 13px/1.7 Consolas, "Courier New", monospace; direction: ltr; text-align: left; }
+.cd-example-code .CodeMirror-scroll, .cd-inline-code .CodeMirror-scroll { min-height: 0; overflow-x: auto !important; overflow-y: hidden !important; }
+.cd-example-code .CodeMirror-gutters, .cd-inline-code .CodeMirror-gutters { border-right: 1px solid #293542; background: #151e28; }
+.cd-example-code .CodeMirror-linenumber, .cd-inline-code .CodeMirror-linenumber { color: #637387; padding: 0 8px 0 5px; }
+.cd-example-code .CodeMirror-lines, .cd-inline-code .CodeMirror-lines { padding: 0 8px; }
+.cd-example-code .CodeMirror-cursor, .cd-inline-code .CodeMirror-cursor { display: none !important; }
+.cd-inline-code { margin: 10px 0 14px; overflow: hidden; border: 1px solid #303b48; border-radius: 8px; background: #111820; }
+.cd-io-input { border-color: #315c70; }
+.cd-io-input > b { background: #142b37; color: #a9edf5; }
+.cd-io-output { border-color: #315d48; }
+.cd-io-output > b { background: #172c22; color: #a9e6bb; }
+.cd-io-output > b::before { background: #72d69a; }
+.cd-main .cd-io-card pre.cd-example-output { min-height: 56px; margin: 0; padding: 12px; border: 0; border-radius: 0; background: #101b15; color: #b9f0c8; font: 13px/1.7 Consolas, "Courier New", monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cd-example .cd-walk { margin: 14px 0 0; }
+.cd-example .cd-walk > b { color: #a9edf5; }
 .cd-walk { margin: 14px 0; } .cd-walk-row { display: grid; grid-template-columns: minmax(150px, 40%) 1fr; gap: 12px; padding: 7px 0; border-bottom: 1px solid #303031; align-items: start; }
 .cd-walk-row code { direction: ltr; text-align: left; white-space: pre-wrap; word-break: break-word; }
 .cd-mistakes { margin: 14px 0; padding: 10px 14px; border-radius: 8px; background: #3a2a1f; border: 1px solid #5a432f; } .cd-mistakes ul { margin: 4px 0 0; padding-inline-start: 20px; }
 .cd-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .cd-secondary { padding: 10px 18px; border: 1px solid #454545; border-radius: 8px; background: #252526; color: #ddd; font: inherit; cursor: pointer; }
 @media (max-width: 720px) { .cd-walk-row { grid-template-columns: 1fr; gap: 2px; } }
+@media (max-width: 720px) { .cd-io-grid { grid-template-columns: 1fr; } }
 .file-row.lesson-file .file-type, .python-file-icon.lesson-icon { width: auto; min-width: 34px; color: #89d185; font-weight: 700; }
 .file-row.lesson-file .file-name { color: #d6f0de; }
 .task-panel { flex: 0 0 auto; max-height: 40%; overflow: auto; padding: 10px 14px 12px; border-bottom: 1px solid #293544; background: #1c2530; color: #dce5ef; font-size: 13px; line-height: 1.6; }
 .task-panel[hidden] { display: none; }
+.task-panel.right { border-bottom: 1px solid #293544; border-left: 1px solid #293544; border-top: 1px solid #293544; flex: 0 0 320px; max-height: 100%; border-bottom: 0; }
+.task-panel.left { border-bottom: 1px solid #293544; border-right: 1px solid #293544; border-top: 1px solid #293544; flex: 0 0 320px; max-height: 100%; border-bottom: 0; }
+.tp-head { display: flex; justify-content: flex-end; padding-bottom: 6px; }
+.tp-menu { border: 0; background: transparent; color: #78d5e4; font-size: 18px; cursor: pointer; padding: 0 4px; border-radius: 4px; }
+.tp-menu:hover { background: #293946; }
 .tp-section { margin-bottom: 8px; } .tp-section > b { display: block; margin-bottom: 3px; color: #78d5e4; font-size: 11px; letter-spacing: .04em; }
 .tp-task code { padding: 1px 5px; border-radius: 4px; background: #293946; color: #e2edf6; font-family: Consolas, "Courier New", monospace; direction: ltr; unicode-bidi: isolate; }
 .tp-expected { margin: 0; padding: 8px 10px; border: 1px solid #293846; border-radius: 6px; background: #111820; color: #dce5ef; font: 12px/1.5 Consolas, "Courier New", monospace; direction: ltr; text-align: left; overflow: auto; }
@@ -53,6 +80,25 @@
 .tp-col pre { margin: 0; padding: 6px 0; border-radius: 6px; background: #111820; font: 12px/1.5 Consolas, "Courier New", monospace; overflow: auto; text-align: left; }
 .tp-col .ln { padding: 0 10px; white-space: pre; } .tp-col .ln.bad { background: #5b282b; color: #ffc0b8; }
 .lesson-bar button.on { background: #264f78; border-color: #264f78; color: #fff; }
+.tp-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; padding-top: 10px; border-top: 1px solid #303b48; justify-content: center; }
+.tp-nav-btn { padding: 6px 14px; border: 1px solid #454545; border-radius: 6px; background: #252526; color: #ddd; font: inherit; cursor: pointer; font-size: 12px; }
+.tp-nav-btn:hover { background: #333; color: #fff; border-color: #666; }
+.tp-nav-btn:disabled { opacity: .5; cursor: not-allowed; }
+.tp-nav-btn.solution { border-color: #2f5a42; background: #1f3a2a; color: #7ee0ad; }
+.tp-nav-btn.solution:hover { background: #2a4a37; color: #aaf0c4; border-color: #3d7a55; }
+.tp-nav-btn.solution.on { background: #2f5a42; border-color: #2f5a42; color: #fff; }
+.tp-solution { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #36495d; }
+.tp-solution > b { display: block; margin-bottom: 6px; color: #7ee0ad; font-size: 12px; letter-spacing: .04em; }
+.tp-solution pre { margin: 0; padding: 0; overflow: hidden; }
+.tp-solution .CodeMirror { height: auto; min-height: 42px; padding: 8px 0; background: #111820; color: #dce5ef; font: 12px/1.5 Consolas, "Courier New", monospace; direction: ltr; text-align: left; }
+.tp-solution .CodeMirror-scroll { min-height: 0; overflow-x: auto !important; overflow-y: hidden !important; }
+.tp-solution .CodeMirror-gutters { border-right: 1px solid #293542; background: #151e28; }
+.tp-solution .CodeMirror-linenumber { color: #637387; padding: 0 8px 0 5px; }
+.tp-solution .CodeMirror-lines { padding: 0 8px; }
+.tp-title { margin: 0 0 12px; padding: 8px 10px; border-radius: 6px; background: #1a2332; color: #e6edf5; font-size: 13px; font-weight: 600; }
+.tp-title b { color: #78d5e4; }
+.tp-open { width: 100%; padding: 6px 12px; border: 1px solid #454545; border-radius: 6px; background: #252526; color: #ddd; font: inherit; cursor: pointer; font-size: 12px; margin-bottom: 14px; }
+.tp-open:hover { background: #333; color: #fff; border-color: #666; }
 @media (max-width: 720px) { .tp-cols { grid-template-columns: 1fr; } }
 @media (max-width: 760px) {
   .lesson-bar { gap: 6px 10px; padding: 8px 10px; }

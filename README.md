@@ -12,8 +12,10 @@ https://hussaincompiler.com/
 - Python editor with syntax highlighting, line numbers, automatic bracket and quote closing, undo/redo, find/replace, and go to line.
 - Settings for toggling automatic closing and adjusting editor font size, saved in the browser.
 - Python errors point to their source line in the editor when the traceback includes a matching file and line.
+- Display a reaction image in the terminal when an error occurs.
 - File, Edit, Selection, View, Settings, Run, Terminal, and Help menus, plus common keyboard shortcuts.
 - Run Python programs in a Web Worker. `input()` requests appear directly in the terminal; type there and press Enter.
+- Each run gets a fresh Python namespace, so variables from an earlier run cannot shadow built-ins such as `range`.
 - Warn about likely endless `while` loops and stop code that runs continuously for 10 seconds; time spent waiting for `input()` is excluded.
 - Start the Python runtime in the background as you begin typing, with status updates while Python and imported packages load.
 - Multiple workspace files, file import, local browser storage, and file download.
@@ -34,11 +36,20 @@ Open <http://localhost:8000> in a modern browser. Opening `index.html` directly 
 ## Python and package support
 
 This is Python running in WebAssembly, not a native system Python installation, and it does not produce executable binaries. The standard library and packages built for Pyodide are supported. `micropip` can install additional packages.
+## Search keywords
+
+- Hussain Compiler 
+- Hussain python compiler
+- github Python Hussain
+- Hussain Browser Compiler
+- WebAssembly Python editor by Hussain
+- Python editor made by Hussian
+
 
 ## Python Courses
 
 Click the 🎓 button in the activity bar to open built-in courses: Python Basics, Data Structures and Functions, and Intermediate Python (15 lessons).
-Each lesson explains a topic, loads starter code into the editor, and lets you press **Check** to compare your program's output with the expected result. Hints, solutions, and progress (saved in the browser) are included.
+Each lesson explains a topic with a worked example showing the Python code, its output, and a line-by-line explanation. It also loads starter code into the editor; run your program to see its output. Requirements are marked as you add the required code. Hints, solutions, and progress (saved in the browser) are included.
 Lesson content lives in `courses.js`; add or edit lessons in the `COURSES` array.
 
 ## Languages
@@ -53,4 +64,4 @@ Each lesson also has an **In simple words** analogy, a **Line by line** walkthro
 
 ## Task panel
 
-Inside a lesson file, the **Task** button in the lesson bar shows or hides a panel with the question (in the course language), the expected output, and a requirements list that ticks itself as your code satisfies each one. When **Check** fails, the panel shows your output next to the expected output with the differing lines highlighted. Lesson files only get a short two-line comment; enable **Full task comment in lesson files** in Editor Settings to put the whole question in the file instead.
+Inside a lesson file, the **Task** button in the lesson bar shows or hides a panel with the question (in the course language), the expected output, and a requirements list that updates as your code satisfies each one. Run your program to view its output in the terminal. Lesson files only get a short two-line comment; enable **Full task comment in lesson files** in Editor Settings to put the whole question in the file instead.

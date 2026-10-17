@@ -15,14 +15,26 @@
   <meta name="twitter:title" content="Hussain Compiler — Online Python IDE">
   <meta name="twitter:description" content="A simple, browser-based Python IDE by Hussain. Write and run Python without installing anything.">
   <meta name="twitter:image" content="https://hussaincompiler.com/hussain-compiler-welcome.jpeg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Hussain Compiler",
+    "url": "https://hussaincompiler.com/",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any (web browser)",
+    "description": "A simple, browser-based Python IDE. Write and run Python without installing anything.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
   <title>Hussain Compiler — Online Python IDE</title>
   <link rel="canonical" href="https://hussaincompiler.com/" />
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
-  <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./courses.css">
+  <link rel="stylesheet" href="./style.css?v=about-modal-2">
+  <link rel="stylesheet" href="./courses.css?v=course-removed-1">
   <link rel="stylesheet" href="./i18n.css">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="apple-touch-icon" href="./favicon.svg">
@@ -31,16 +43,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js" defer></script>
     <script src="./i18n.js" defer></script>
-  <script src="./lang/ar.js" defer></script>
-  <script src="./app.js?v=87ba3dd" defer></script>
-  <script src="./courses.js?v=security-comment-lines" defer></script>
+  <script src="./lang/ar.js?v=run-output-instructions-2" defer></script>
+  <script src="./app.js?v=about-modal-2" defer></script>
+  <script src="./courses.js?v=run-output-instructions-2" defer></script>
 </head>
 <body>
   <div class="app-shell">
     <header class="titlebar">
       <div class="brand" aria-label="Hussain Compiler">
         <span class="brand-mark" aria-hidden="true">HC</span>
-        <span class="brand-name">Hussain Compiler</span>
+        <h1 class="brand-name">Hussain Compiler</h1>
       </div>
 
       <nav class="menubar" id="menuBar" aria-label="Application menu">
@@ -117,6 +129,7 @@
         <span class="runtime-pill"><i class="status-dot" id="statusDot"></i><span id="runtimeStatus">Python on demand</span><span id="pythonVersion" hidden>3</span></span>
         <span class="pages-badge">WEB IDE</span>
       </div>
+      <button class="about-top-button" id="aboutTopBtn" type="button">About</button>
     </header>
 
     <div class="workspace" id="workspace">
@@ -218,10 +231,19 @@
       </label>
       <div class="settings-footer"><span>Preferences are saved in this browser.</span><button class="settings-done" id="settingsDoneBtn" type="button">Done</button></div>
     </dialog>
+    <dialog class="about-dialog" id="aboutDialog" aria-labelledby="aboutTitle">
+      <div class="about-dialog-heading">
+        <h2 id="aboutTitle">About Hussain Compiler</h2>
+        <button class="icon-button" id="aboutCloseBtn" type="button" aria-label="Close">×</button>
+      </div>
+      <p>Hussain Compiler is a free, browser-based Python editor powered by Pyodide and WebAssembly. Write, run and test Python without installing anything, with built-in lessons and Arabic support.</p>
+      <div class="about-dialog-actions">
+        <button class="settings-done" id="aboutDoneBtn" type="button">Close</button>
+      </div>
+    </dialog>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
-</body>
-</html>
+  <noscript>Hussain Compiler is an online Python IDE. Please enable JavaScript to run Python in your browser.</noscript>
 
 <script>
 (() => {
@@ -273,3 +295,5 @@
   const z=document.createElement('div');z.className='terminal-zoom';z.innerHTML='<button type="button" aria-label="Decrease terminal font size">−</button><span class="terminal-zoom-value" aria-live="polite"></span><button type="button" aria-label="Increase terminal font size">+</button>';const [minus,plus]=z.querySelectorAll('button'),label=z.querySelector('span'),apply=()=>{c.style.setProperty('font-size',font+'px','important');label.textContent=font+'px';minus.disabled=font<=10;plus.disabled=font>=24};minus.onclick=()=>{font=Math.max(10,font-1);save('hussain-terminal-font-size',font);apply()};plus.onclick=()=>{font=Math.min(24,font+1);save('hussain-terminal-font-size',font);apply()};document.querySelector('.output-actions')?.prepend(z);apply();
 })();
 </script>
+</body>
+</html>

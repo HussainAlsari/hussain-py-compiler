@@ -9,9 +9,9 @@ const elements = Object.fromEntries([
   "runBtn", "stopBtn", "deleteFileBtn", "activeFileName", "dirtyMark", "saveState",
   "runtimeStatus", "statusDot", "pythonVersion", "cursorPosition", "console", "runState",
   "clearOutputBtn", "downloadOutputImageBtn", "packageForm", "packageName", "installBtn", "toast", "workspace",
-  "mainPanel", "explorerBtn", "searchBtn", "runActivityBtn", "extensionsBtn", "aboutBtn",
+  "mainPanel", "explorerBtn", "searchBtn", "runActivityBtn", "extensionsBtn", "aboutBtn", "aboutTopBtn",
   "rootNewFileBtn", "rootOpenFilesBtn", "windowTitle", "breadcrumbFileName", "toggleWordWrapItem",
-  "settingsDialog", "settingsCloseBtn", "settingsDoneBtn", "autoCloseBracketsSetting", "autoClearTerminalSetting", "fontSizeSetting", "fontSizeValue",
+  "settingsDialog", "settingsCloseBtn", "settingsDoneBtn", "aboutDialog", "aboutCloseBtn", "aboutDoneBtn", "autoCloseBracketsSetting", "autoClearTerminalSetting", "fontSizeSetting", "fontSizeValue",
 ].map((id) => [id, document.getElementById(id)]));
 
 let savedActiveFile = null;
@@ -149,6 +149,18 @@ function showToast(message, isError = false) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => elements.toast.classList.remove("show"), 2800);
 }
+function showAbout() {
+  if (!elements.aboutDialog.open) elements.aboutDialog.showModal();
+}
+
+function initAbout() {
+  const close = () => elements.aboutDialog.close();
+  elements.aboutCloseBtn.addEventListener("click", close);
+  elements.aboutDoneBtn.addEventListener("click", close);
+  elements.aboutDialog.addEventListener("click", (event) => {
+    if (event.target === elements.aboutDialog) close();
+  });
+}
 
 function setRuntimeStatus(text, state = "idle") {
   elements.runtimeStatus.textContent = text;
@@ -159,6 +171,17 @@ function appendOutput(text, kind = "") {
   const line = document.createElement("div");
   line.className = `console-line${kind ? ` ${kind}` : ""}`;
   line.textContent = text;
+  if (kind === "error") {
+    const image = document.createElement("img");
+    image.className = "console-error-image";
+    image.src = "./error-reaction.png";
+    image.alt = "Reaction image shown after an error";
+    image.decoding = "async";
+    image.addEventListener("load", () => {
+      elements.console.scrollTop = elements.console.scrollHeight;
+    }, { once: true });
+    line.append(document.createElement("br"), image);
+  }
   elements.console.append(line);
   elements.console.scrollTop = elements.console.scrollHeight;
 }
@@ -279,19 +302,48 @@ function safeFileName(name) {
 
 function renderFiles() {
   elements.fileList.replaceChildren();
-  Object.keys(files).sort((a, b) => a.localeCompare(b)).forEach((name) => {
+  const sorted = Object.keys(files);
+  sorted.forEach((name, index) => {
     const row = document.createElement("button");
     row.type = "button";
     row.className = `file-row${name === activeFile ? " active" : ""}`;
     row.title = name;
+    row.draggable = true;
+    row.dataset.file = name;
+    row.dataset.index = index;
     const type = document.createElement("span");
     type.className = "file-type";
     type.textContent = name.toLowerCase().endsWith(".py") ? "Py" : "·";
     const label = document.createElement("span");
     label.className = "file-name";
     label.textContent = name;
-    row.append(type, label);
+    const renameBtn = document.createElement("button");
+    renameBtn.type = "button";
+    renameBtn.className = "rename-file-btn";
+    renameBtn.title = "Rename file";
+    renameBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4L18.5 2.5z"></path></svg>';
+    renameBtn.setAttribute("aria-label", `Rename ${name}`);
+    renameBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      renameFile(name);
+    });
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.className = "delete-file-btn";
+    deleteBtn.title = "Delete file";
+    deleteBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
+    deleteBtn.setAttribute("aria-label", `Delete ${name}`);
+    deleteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteFileWithName(name);
+    });
+    row.append(type, label, renameBtn, deleteBtn);
     row.addEventListener("click", () => openWorkspaceFile(name));
+    row.addEventListener("dragstart", handleDragStart);
+    row.addEventListener("dragover", handleDragOver);
+    row.addEventListener("drop", handleDrop);
+    row.addEventListener("dragenter", handleDragEnter);
+    row.addEventListener("dragleave", handleDragLeave);
     elements.fileList.append(row);
   });
 }
@@ -390,6 +442,91 @@ function deleteCurrentFile() {
   activeFile = Object.keys(files)[0];
   openWorkspaceFile(activeFile);
   renderFiles();
+}
+
+function deleteFileWithName(name) {
+  if (Object.keys(files).length < 2) {
+    showToast("The workspace must contain at least one file.", true);
+    return;
+  }
+  if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+  delete files[name];
+  if (name === activeFile) {
+    activeFile = Object.keys(files)[0];
+    openWorkspaceFile(activeFile);
+  }
+  renderFiles();
+  saveWorkspace();
+}
+
+function renameFile(name) {
+  const newName = prompt(`Rename "${name}" to:`, name);
+  if (newName === null) return;
+  const trimmed = newName.trim();
+  if (!trimmed) {
+    showToast("File name cannot be empty.", true);
+    return;
+  }
+  let safe = safeFileName(trimmed);
+  if (!safe) {
+    showToast("Enter a valid relative file name inside the workspace.", true);
+    return;
+  }
+  if (!safe.includes(".")) safe += ".py";
+  if (safe === name) return;
+  if (Object.hasOwn(files, safe)) {
+    showToast("A file with this name already exists.", true);
+    return;
+  }
+  files[safe] = files[name];
+  delete files[name];
+  if (activeFile === name) activeFile = safe;
+  renderFiles();
+  saveWorkspace();
+  showToast(`Renamed to "${safe}".`);
+}
+
+let draggedFile = null;
+
+function handleDragStart(event) {
+  draggedFile = event.target.dataset.file;
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", draggedFile);
+}
+
+function handleDragOver(event) {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = "move";
+}
+
+function handleDragEnter(event) {
+  event.target.closest(".file-row")?.classList.add("drag-over");
+}
+
+function handleDragLeave(event) {
+  if (!event.target.closest(".file-row")?.contains(event.relatedTarget)) {
+    event.target.closest(".file-row")?.classList.remove("drag-over");
+  }
+}
+
+function handleDrop(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  const targetRow = event.target.closest(".file-row");
+  if (!targetRow) return;
+  targetRow.classList.remove("drag-over");
+  const targetFile = targetRow.dataset.file;
+  if (!draggedFile || draggedFile === targetFile) return;
+  if (!Object.hasOwn(files, draggedFile)) return;
+  const newOrder = Object.keys(files).filter((f) => f !== draggedFile);
+  const targetIndex = newOrder.indexOf(targetFile);
+  newOrder.splice(targetIndex, 0, draggedFile);
+  const reordered = {};
+  newOrder.forEach((f) => { reordered[f] = files[f]; });
+  files = reordered;
+  renderFiles();
+  saveWorkspace();
+  draggedFile = null;
 }
 
 function ensureRuntime() {
@@ -780,7 +917,7 @@ function runCommand(command) {
       if (!pendingInputRequest) elements.console.replaceChildren();
       break;
     case "python-docs": window.open("https://docs.python.org/3/", "_blank", "noopener,noreferrer"); break;
-    case "about": showToast("Hussain Compiler — a browser-based Python IDE powered by Pyodide."); break;
+    case "about": closeMenus(); showAbout(); break;
     default: return;
   }
 }
@@ -942,11 +1079,13 @@ elements.explorerBtn.addEventListener("click", toggleExplorer);
 elements.searchBtn.addEventListener("click", findInEditor);
 elements.runActivityBtn.addEventListener("click", runCode);
 elements.extensionsBtn.addEventListener("click", () => document.querySelector(".package-box").scrollIntoView({ block: "nearest" }));
-elements.aboutBtn.addEventListener("click", () => showToast("Hussain Compiler — a browser-based Python IDE powered by Pyodide."));
+elements.aboutBtn.addEventListener("click", showAbout);
+elements.aboutTopBtn.addEventListener("click", showAbout);
 window.addEventListener("beforeunload", saveWorkspace);
 initMenus();
 initShortcuts();
 initSettings();
+initAbout();
 initEditor();
 
 

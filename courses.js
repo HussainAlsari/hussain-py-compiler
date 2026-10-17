@@ -69,7 +69,7 @@
         hint: "def area(w, h):\n    return w * h", solution: "def area(w, h):\n    return w * h\n\nprint(area(6, 7))\n" },
       { id: "comp", title: "List comprehensions",
         simple: "A list comprehension builds a new list from another sequence in one line, and can filter items with if.",
-        body: "A compact way to build lists.\n\n<pre>squares = [x * x for x in range(5)]\nevens = [x for x in range(10) if x % 2 == 0]</pre>",
+        body: "A compact way to build lists.\n\n<pre>squares = [x * x for x in range(5)]\nevens = [x for x in range(10) if x % 2 == 0]\nprint(squares)\nprint(evens)</pre>",
         walk: [["[x * x for x in range(5)]", "For each x from 0 to 4, compute x * x and collect the results."], ["[x for x in range(10) if x % 2 == 0]", "Keep only the x values where the if condition is True."]],
         mistakes: ["Putting the if before for: the filter goes at the end.", "Squeezing too much into one line: if it is hard to read, use a normal loop."],
         task: "Print a list of the squares of the numbers 1 to 5 using a comprehension. Expected: <code>[1, 4, 9, 16, 25]</code>", starter: "", expected: "[1, 4, 9, 16, 25]", must: [["\\[.*for .* in .*\\]", "Use a list comprehension."]],
@@ -92,7 +92,7 @@
         hint: "__init__ sets self.value = 0; add does self.value += 1", solution: "class Counter:\n    def __init__(self):\n        self.value = 0\n\n    def add(self):\n        self.value += 1\n\nc = Counter()\nc.add()\nc.add()\nc.add()\nprint(c.value)\n" },
       { id: "inherit", title: "Inheritance",
         simple: "A child class inherits everything from its parent class and can add new behaviour or override existing methods.",
-        body: "A child class reuses a parent class and can change its behaviour.\n\n<pre>class Animal:\n    def sound(self): return \"...\"\nclass Cat(Animal):\n    def sound(self): return \"meow\"</pre>",
+        body: "A child class reuses a parent class and can change its behaviour.\n\n<pre>class Animal:\n    def sound(self): return \"...\"\nclass Cat(Animal):\n    def sound(self): return \"meow\"\n\nprint(Cat().sound())</pre>",
         walk: [["class Animal:", "The parent class."], ["class Cat(Animal):", "Cat inherits from Animal because of the (Animal) part."], ["def sound(self): return \"meow\"", "Cat replaces (overrides) the parent's version."]],
         mistakes: ["Forgetting the parent in brackets: class Cat: is not a child.", "Overriding __init__ without passing the values the parent needs."],
         task: "Make <code>Shape</code> with <code>area()</code> returning 0 and <code>Square(Shape)</code> that takes <code>side</code> and overrides <code>area()</code>. Print <code>Square(5).area()</code>.", starter: "", expected: "25", must: [["class\\s+Square\\s*\\(\\s*Shape", "Square must inherit from Shape."]],
@@ -121,6 +121,23 @@
     ]},
   ];
   HC.courses = COURSES;
+  const EXAMPLE_OUTPUTS = {
+    hello: "Hello\n5",
+    vars: "Sara 20\n<class 'int'>",
+    fstr: "Hi Ali!",
+    if: "odd",
+    loops: "0\n1\n2",
+    lists: "[1, 2, 3, 5] 4",
+    dicts: "name Omar\nage 30\ncity Dubai",
+    funcs: "16",
+    comp: "[0, 1, 4, 9, 16]\n[0, 2, 4, 6, 8]",
+    errors: "not a number",
+    classes: "Rex says woof",
+    inherit: "meow",
+    modules: "4.0",
+    json: "1",
+    gen: "[0, 1, 2]",
+  };
 
   // ---- helpers: translated content, safe HTML ----
   const $ = (s, r = document) => r.querySelector(s);
@@ -151,9 +168,29 @@
     return doc.body.innerHTML;
   }
   const fmt = (s) => sanitize(String(s).split(/(<pre>[\s\S]*?<\/pre>)/).map((p) => (/^<pre>/.test(p) ? p : p.replace(/\n\n/g, "<br><br>"))).join(""));
-  const exampleOf = (html) => { const p = new DOMParser().parseFromString(html, "text/html").querySelector("pre"); return p ? p.textContent : ""; };
+  const exampleOf = (html) => [...new DOMParser().parseFromString(html, "text/html").querySelectorAll("pre")]
+    .map((pre) => pre.textContent)
+    .filter(Boolean)
+    .join("\n");
   const mk = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
-
+  function renderCodeEditor(container, source) {
+    const CodeMirror = window.CodeMirror;
+    if (!CodeMirror) {
+      container.textContent = source;
+      return;
+    }
+    const codeEditor = CodeMirror(container, {
+      value: source,
+      mode: "python",
+      theme: "material-darker",
+      readOnly: "nocursor",
+      lineNumbers: true,
+      lineWrapping: false,
+      viewportMargin: Infinity,
+    });
+    codeEditor.setSize("100%", "auto");
+    requestAnimationFrame(() => codeEditor.refresh());
+  }
   // ---- dialog ----
   const dlg = document.createElement("dialog");
   dlg.className = "courses-dialog";
@@ -186,11 +223,41 @@
     m.replaceChildren(); m.dir = pack()?.dir || "ltr";
     m.append(mk("h2", "", `${text(c, null, "title")} · ${i + 1}. ${text(c, l, "title")}`));
     const simple = mk("div", "cd-simple"); simple.append(mk("b", "", TC("In simple words")), mk("p", "", text(c, l, "simple"))); m.append(simple);
-    const body = mk("div", "cd-text"); body.innerHTML = fmt(text(c, l, "body")); m.append(body);
+    const body = mk("div", "cd-text"); body.innerHTML = fmt(text(c, l, "body"));
+    const bodyCodeBlocks = [];
+    [...body.childNodes].forEach((node) => {
+      if (!(node instanceof HTMLElement) || node.tagName !== "PRE") return;
+      let source = node.textContent;
+      while (node.nextElementSibling?.tagName === "PRE" && node.nextSibling === node.nextElementSibling) {
+        const next = node.nextElementSibling;
+        source += `\n${next.textContent}`;
+        next.remove();
+      }
+      const container = mk("div", "cd-inline-code");
+      node.replaceWith(container);
+      bodyCodeBlocks.push({ container, source });
+    });
+    m.append(body);
     const meanings = arr(c, l, "walk") || [];
-    const walk = mk("div", "cd-walk"); walk.append(mk("b", "", TC("Line by line")));
+    const exampleCode = exampleOf(fmt(text(c, l, "body")));
+    const exampleOutput = EXAMPLE_OUTPUTS[l.id];
+    if (!exampleCode || typeof exampleOutput !== "string") {
+      throw new Error(`The course example is incomplete for ${key(c, l)}.`);
+    }
+    const example = mk("section", "cd-example");
+    example.append(mk("b", "cd-example-title", TC("Worked example")));
+    const io = mk("div", "cd-io-grid");
+    const input = mk("div", "cd-io-card cd-io-input");
+    const codeContainer = mk("div", "cd-example-code");
+    input.append(mk("b", "", TC("Input (code)")), codeContainer);
+    const output = mk("div", "cd-io-card cd-io-output");
+    const outputBox = mk("pre", "cd-example-output", exampleOutput);
+    output.append(mk("b", "", TC("Output")), outputBox);
+    io.append(input, output); example.append(io);
+    const walk = mk("div", "cd-walk"); walk.append(mk("b", "", TC("Explanation, line by line")));
     l.walk.forEach((w, k) => { const r = mk("div", "cd-walk-row"); r.append(mk("code", "", w[0]), mk("span", "", meanings[k] || w[1])); walk.append(r); });
-    m.append(walk);
+    example.append(walk); m.append(example);
+    renderCodeEditor(codeContainer, exampleCode);
     const mis = mk("div", "cd-mistakes"); mis.append(mk("b", "", TC("Common mistakes")));
     const ul = mk("ul"); (arr(c, l, "mistakes") || l.mistakes).forEach((x) => ul.append(mk("li", "", x))); mis.append(ul); m.append(mis);
     const task = mk("div", "cd-task"); task.append(mk("b", "", TC("Your task"))); const td = mk("div"); td.innerHTML = sanitize(text(c, l, "task")); task.append(td); m.append(task);
@@ -198,6 +265,7 @@
     const ex = mk("button", "cd-secondary", TC("Try the example")); ex.type = "button"; ex.onclick = tryExample;
     const go = mk("button", "cd-primary", TC("Start lesson in editor")); go.type = "button"; go.onclick = startLesson;
     act.append(ex, go); m.append(act);
+    bodyCodeBlocks.forEach(({ container, source }) => renderCodeEditor(container, source));
   }
 
   function showLesson(c, i) { current = { course: c, lesson: c.lessons[i], index: i }; renderLesson(); renderNav(); }
@@ -230,11 +298,11 @@
     .map((row) => row ? "# " + row : "#")
     .join("\n");
   const SETTINGS_KEY = "hussain-courses-settings-v1";
-  const settings = (() => { try { return Object.assign({ fullComment: false }, JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}")); } catch (_) { return { fullComment: false }; } })();
+  const settings = (() => { try { return Object.assign({ fullComment: false, taskPanelPos: "right" }, JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}")); } catch (_) { return { fullComment: false, taskPanelPos: "right" }; } })();
   const saveSettings = () => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (_) {} };
   function buildHeader(c, l) {
     if (settings.fullComment) return fullHeader(c, l);
-    const rows = [`${TC("Lesson:")} ${text(c, l, "title")}`, ...wrap(TC("See the Task panel for the full question, then press Run, then press Check."), 80)];
+    const rows = [`${TC("Lesson:")} ${text(c, l, "title")}`, ...wrap(TC("See the Task panel for the full question, then press Run to see your output."), 80)];
     return BAR + commentRows(rows) + "\n" + BAR + "\n";
   }
   function fullHeader(c, l) {
@@ -243,7 +311,7 @@
     rows.push(TC("Expected output:"), ...String(l.expected).split("\n").map((x) => "   " + x), "");
     const mustMsgs = arr(c, l, "must") || [];
     if ((l.must || []).length) rows.push(TC("Requirements:"), ...l.must.map((m, k) => "- " + (mustMsgs[k] || TC(m[1]))), "");
-    rows.push(...wrap(TC("Write your code below, press Run, then press Check.")));
+    rows.push(...wrap(TC("Write your code below, then press Run to see your output.")));
     return BAR + commentRows(rows) + "\n" + BAR + "\n";
   }
   const withHeader = (code, c, l) => buildHeader(c, l) + String(code).replace(HEADER_RE, "");
@@ -275,15 +343,6 @@
   bar.className = "lesson-bar"; bar.hidden = true;
   bar.innerHTML = `<span class="lb-title" data-i18n-skip></span><span class="lb-msg"></span>
     <div class="lb-controls">
-      <div class="lb-group">
-        <button data-a="task" type="button" class="lb-task">Task</button><button data-a="info" type="button">Lesson</button>
-      </div>
-      <div class="lb-group">
-        <button data-a="solution" type="button">Solution</button>
-      </div>
-      <div class="lb-group lb-flow">
-        <button data-a="next" type="button" class="lb-next">Next ›</button>
-      </div>
       <button data-a="close" type="button" class="lb-close" aria-label="Close lesson">×</button>
     </div>`;
   $(".editor-stage").prepend(bar);
@@ -291,12 +350,52 @@
   const msg = (t, kind = "") => { const m = $(".lb-msg", bar); m.textContent = t; m.className = "lb-msg " + kind; };
   const barTitle = () => { $(".lb-title", bar).textContent = `${text(current.course, null, "title")}: ${text(current.course, current.lesson, "title")}`; };
   // ---- Task panel (question, expected output, live requirements, output comparison) ----
-  let taskOpen = true, hooked = false;
+  let taskOpen = true, hooked = false, panelRendered = false;
   const panel = mk("div", "task-panel"); panel.hidden = true; panel.setAttribute("data-i18n-skip", "");
+  const panelHead = mk("div", "tp-head");
+  const panelMenu = mk("button", "tp-menu"); panelMenu.type = "button"; panelMenu.title = "Panel position"; panelMenu.innerHTML = "⋮";
+  panelMenu.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const opts = [{ v: "right", label: "Right" }, { v: "bottom", label: "Bottom" }, { v: "left", label: "Left" }];
+    const idx = opts.findIndex((o) => o.v === settings.taskPanelPos);
+    const next = opts[(idx + 1) % opts.length];
+    settings.taskPanelPos = next.v;
+    saveSettings();
+    panel.className = "task-panel " + settings.taskPanelPos;
+    panelMenu.title = "Panel position: " + next.label;
+  });
+  panelHead.append(panelMenu);
+  panel.appendChild(panelHead);
   bar.after(panel);
+  // ---- Task panel resize handle ----
+  const resizeHandle = mk("div", "tp-resize");
+  panel.appendChild(resizeHandle);
+  let isResizing = false, startX = 0, startWidth = 0;
+  resizeHandle.addEventListener("pointerdown", (e) => {
+    isResizing = true;
+    startX = e.clientX;
+    startWidth = panel.offsetWidth;
+    resizeHandle.setPointerCapture(e.pointerId);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  });
+  resizeHandle.addEventListener("pointermove", (e) => {
+    if (!isResizing) return;
+    const delta = e.clientX - startX;
+    let newWidth = startWidth + delta;
+    if (settings.taskPanelPos === "right") newWidth = startWidth - delta;
+    newWidth = Math.max(200, Math.min(600, newWidth));
+    panel.style.width = newWidth + "px";
+  });
+  resizeHandle.addEventListener("pointerup", (e) => {
+    isResizing = false;
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+    resizeHandle.releasePointerCapture(e.pointerId);
+  });
   function applyPanel() {
     panel.hidden = bar.hidden || !taskOpen;
-    const b = $('[data-a="task"]', bar); if (b) b.classList.toggle("on", !panel.hidden);
+    panel.className = "task-panel " + settings.taskPanelPos;
   }
   function updateReqs() {
     if (!current) return;
@@ -308,8 +407,14 @@
   }
   function renderPanel() {
     const { course: c, lesson: l } = current;
-    panel.replaceChildren(); panel.dir = pack()?.dir || "ltr";
+    panel.dir = pack()?.dir || "ltr";
+    panel.replaceChildren(panelHead, resizeHandle);
     const sec = (label, cls) => { const d = mk("div", "tp-section" + (cls ? " " + cls : "")); d.append(mk("b", "", label)); panel.append(d); return d; };
+    const titleDiv = mk("div", "tp-title"); titleDiv.innerHTML = `<b>${text(c, null, "title")}</b> · ${text(c, l, "title")}`;
+    panel.appendChild(titleDiv);
+    const openBtn = mk("button", "tp-open"); openBtn.type = "button"; openBtn.textContent = "Open Lesson";
+    openBtn.addEventListener("click", (e) => { e.stopPropagation(); showLesson(c, current.index); dlg.showModal(); });
+    panel.appendChild(openBtn);
     const td = mk("div", "tp-task"); td.innerHTML = sanitize(text(c, l, "task")); sec(TC("Task")).append(td);
     sec(TC("Expected output")).append(mk("pre", "tp-expected", l.expected));
     if ((l.must || []).length) {
@@ -318,9 +423,37 @@
       sec(TC("Requirements"), "tp-reqs").append(ul);
     }
     const cmp = mk("div", "tp-compare"); cmp.hidden = true; panel.append(cmp);
+    const solBox = mk("div", "tp-solution"); solBox.innerHTML = ""; panel.append(solBox);
+    solBox.style.display = "none";
+    const nav = mk("div", "tp-nav");
+    const prevBtn = mk("button", "tp-nav-btn"); prevBtn.type = "button"; prevBtn.textContent = "‹ Previous";
+    prevBtn.addEventListener("click", (e) => { e.stopPropagation(); if (current.index === 0) return; const c = current.course; const prev = c.lessons[current.index - 1]; current = { course: c, lesson: prev, index: current.index - 1 }; startLesson(); });
+    const lessonBtn = mk("button", "tp-nav-btn"); lessonBtn.type = "button"; lessonBtn.textContent = "Lesson";
+    lessonBtn.addEventListener("click", (e) => { e.stopPropagation(); showLesson(c, current.index); dlg.showModal(); });
+    const solBtn = mk("button", "tp-nav-btn solution"); solBtn.type = "button"; solBtn.textContent = "Solution";
+    solBtn.addEventListener("click", (e) => { 
+      e.stopPropagation(); 
+      const hideSol = solBox.style.display !== "none";
+      solBox.style.display = hideSol ? "none" : "block";
+      solBtn.classList.toggle("on", !hideSol);
+      if (!hideSol) { 
+  solBox.replaceChildren(mk("b", "", "Solution"));
+  const p = mk("pre", ""); 
+  renderCodeEditor(p, l.solution); 
+  solBox.appendChild(p); 
+} else { 
+  solBox.innerHTML = ""; 
+}
+    });
+    const nextBtn = mk("button", "tp-nav-btn"); nextBtn.type = "button"; nextBtn.textContent = "Next ›";
+    nextBtn.addEventListener("click", (e) => { e.stopPropagation(); const c = current.course; const next = c.lessons[current.index + 1]; if (!next) return; current = { course: c, lesson: next, index: current.index + 1 }; startLesson(); });
+    nav.append(prevBtn, lessonBtn, solBtn, nextBtn);
+    panel.append(nav);
     updateReqs();
+    panelRendered = true;
   }
   function hideCompare() { const c = panel.querySelector(".tp-compare"); if (c) c.hidden = true; }
+  function hideSolution() { const c = panel.querySelector(".tp-solution"); if (c) { c.style.display = "none"; c.hidden = true; } }
   function showCompare(out, exp) {
     const cmp = panel.querySelector(".tp-compare"); if (!cmp) return;
     cmp.replaceChildren(); cmp.hidden = false;
@@ -343,14 +476,15 @@
   // The lesson bar is only visible while a lesson file is the active file.
   function syncBar() {
     const hit = lessonFromFile(typeof activeFile === "string" ? activeFile : "");
-    if (!hit) { bar.hidden = true; barFor = null; barDismissed = null; applyPanel(); return; }
+    if (!hit) { panel.hidden = true; barFor = null; barDismissed = null; applyPanel(); return; }
     const k = key(hit.course, hit.lesson), changed = barFor !== k;
     current = hit; barFor = k;
     if (changed) barDismissed = null;
-    if (barDismissed === k) { bar.hidden = true; applyPanel(); return; }
-    bar.hidden = false; barTitle();
-    if (changed) msg(T("Write your code, press Run, then Check."));
+    if (barDismissed === k) { panel.hidden = true; applyPanel(); return; }
+    panel.hidden = false;
+    if (changed) msg(T("Write your code, then press Run to see your output."));
     if (changed || !panel.firstChild) renderPanel();
+    bar.hidden = false; barTitle();
     applyPanel();
     if (!hooked && typeof editor !== "undefined" && editor) { editor.on("change", () => { if (!panel.hidden) updateReqs(); }); hooked = true; }
     try { editor.refresh(); } catch (_) {}
@@ -367,8 +501,19 @@
     if (document.querySelector("#console .console-line.error")) return msg(T("Your program has an error. Fix it and run again."), "bad");
     const out = capturedOutput();
     if (!out.trim()) return msg(T("No output yet. Press Run first."), "warn");
-    if (norm(out) === norm(lesson.expected)) { progress[key(course, lesson)] = true; save(progress); renderNav(); hideCompare(); msg(T("Correct! Lesson completed ✓"), "good"); }
-    else { showCompare(out, lesson.expected); taskOpen = true; applyPanel(); msg(T("Not quite. Your output doesn't match yet. Try the hint."), "bad"); }
+    if (norm(out) === norm(lesson.expected)) {
+      progress[key(course, lesson)] = true;
+      save(progress);
+      renderNav();
+      hideCompare();
+      hideSolution();
+      msg(T("Done ✓"), "good");
+    } else {
+      showCompare(out, lesson.expected);
+      taskOpen = true;
+      applyPanel();
+      msg(T("Not quite. Your output doesn't match yet. Try the hint."), "bad");
+    }
   }
 
   bar.addEventListener("click", (e) => {
@@ -378,11 +523,15 @@
     else if (a === "task") { taskOpen = !taskOpen; applyPanel(); }
     else if (a === "check") check();
     else if (a === "hint") msg(T("Hint: {hint}", { hint: String(text(course, lesson, "hint")).replace(/\n/g, " ") }));
-    else if (a === "solution") { if (!confirm("Replace your code with the solution?")) return; editor.setValue(lesson.solution); msg(T("Solution loaded. Run it, then Check.")); }
+    else if (a === "solution") { if (!confirm("Replace your code with the solution?")) return; editor.setValue(lesson.solution); msg(T("Solution loaded. Run it to see its output.")); }
     else if (a === "next") {
       const next = course.lessons[index + 1];
       if (!next) return msg(T("That was the last lesson in this course!"), "good");
       current = { course, lesson: next, index: index + 1 }; startLesson();
+    } else if (a === "prev") {
+      if (index === 0) return msg(T("That was the first lesson in this course!"), "warn");
+      const prev = course.lessons[index - 1];
+      current = { course, lesson: prev, index: index - 1 }; startLesson();
     } else if (a === "close") { bar.hidden = true; barDismissed = barFor; }
   });
 
@@ -416,6 +565,7 @@
   const afn = document.getElementById("activeFileName");
   if (afn) new MutationObserver(markFiles).observe(afn, { childList: true, characterData: true, subtree: true });
   document.addEventListener("hc-lang", markFiles);
+  refreshHeaders();
   markFiles();
 
   // ---- setting: full task comment in lesson files ----
