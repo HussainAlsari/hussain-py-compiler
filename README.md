@@ -34,15 +34,6 @@ Open <http://localhost:8000> in a modern browser. Opening `index.html` directly 
 ## Python and package support
 
 This is Python running in WebAssembly, not a native system Python installation, and it does not produce executable binaries. The standard library and packages built for Pyodide are supported. `micropip` can install additional packages.
-## Search keywords
-
-- Hussain Compiler 
-- Hussain python compiler
-- github Python Hussain
-- Hussain Browser Compiler
-- WebAssembly Python editor by Hussain
-- Python editor made by Hussian
-
 
 ## Python Courses
 
