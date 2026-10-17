@@ -33,7 +33,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
-  <link rel="stylesheet" href="./style.css?v=about-modal-2">
+  <link rel="stylesheet" href="./style.css?v=about-long-1">
   <link rel="stylesheet" href="./courses.css?v=course-removed-1">
   <link rel="stylesheet" href="./i18n.css">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
@@ -163,7 +163,8 @@
             <button id="installBtn" type="submit">Install</button>
           </form>
           <p class="package-hint">Packages that require native system extensions may not run in WebAssembly.</p>
-        </section>
+            <p><a href="./about.html">Read the full About page</a></p>
+  </section>
         <div class="storage-note"><span class="storage-icon">●</span> Stored in this browser</div>
       </aside>
 
@@ -244,6 +245,43 @@
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
   <noscript>Hussain Compiler is an online Python IDE. Please enable JavaScript to run Python in your browser.</noscript>
+  <section class="about-site" aria-labelledby="about-site-title">
+    <h2 id="about-site-title">Hussain Compiler: a free online Python IDE in your browser</h2>
+    <p>Hussain Compiler is a free, browser-based Python editor and runner. You can write a Python program, run it, type input into the terminal and read the output without installing Python, creating an account or downloading anything. It is built for students who are just starting to learn programming, for teachers who need a tool that works on any computer, and for developers who want to test a small script quickly.</p>
+
+    <h3>How it works</h3>
+    <p>Python runs inside your browser through <a href="https://pyodide.org/" target="_blank" rel="noopener">Pyodide</a>, a version of Python compiled to WebAssembly. Your code executes in a background Web Worker on your own device, so the page stays responsive while a program runs. Each run starts with a fresh namespace, which means variables from an earlier run cannot change how a later run behaves. The first run needs an internet connection so the browser can download the Python runtime and the code editor libraries.</p>
+
+    <h3>What you can do</h3>
+    <ul>
+      <li><strong>Write code comfortably.</strong> The editor has syntax highlighting, line numbers, automatic closing of brackets and quotes, undo and redo, find and replace, and go to line.</li>
+      <li><strong>Use input() normally.</strong> When your program asks for input, the request appears in the terminal. Type your answer there and press Enter.</li>
+      <li><strong>Find mistakes faster.</strong> When Python reports an error, the message points to the line in your file where it happened.</li>
+      <li><strong>Work with several files.</strong> Create, open, save and download files, and import your own Python or text files from your computer.</li>
+      <li><strong>Install packages.</strong> Use the package box to install compatible packages with micropip, and packages supported by Pyodide load automatically when you import them.</li>
+      <li><strong>Learn step by step.</strong> Built-in Python lessons explain a topic in simple words, show a worked example with its output, walk through the code line by line, list common mistakes and give you a task with hints.</li>
+      <li><strong>Share your result.</strong> Export your code and the terminal output together as a PNG image.</li>
+      <li><strong>Choose your language.</strong> The interface and the lessons are available in English and Arabic, and the layout switches direction automatically. You can also import a language pack for another language.</li>
+    </ul>
+
+    <h3>Privacy and storage</h3>
+    <p>Your code runs locally. Your files and preferences, such as editor font size, are stored in your own browser using local storage, so they stay on your device. If you clear your browser data, your saved files are removed, so download anything you want to keep.</p>
+
+    <h3>Limits to know about</h3>
+    <p>This is Python running in WebAssembly, not a full desktop installation. The standard library and many popular packages work, but packages that need native system extensions, direct access to the operating system or network sockets may not run. Programs that run without stopping are halted after about ten seconds, and the editor warns you about loops that look endless. Time spent waiting for your input is not counted.</p>
+
+    <h3>Frequently asked questions</h3>
+    <h4>Is Hussain Compiler free?</h4>
+    <p>Yes. It is free to use, with no account and no installation.</p>
+    <h4>Which version of Python does it use?</h4>
+    <p>It uses the Python version bundled with the current Pyodide runtime. The exact version appears in the status area once the runtime has loaded.</p>
+    <h4>Does it work on a phone or tablet?</h4>
+    <p>Yes. The interface adapts to small screens, although a larger screen and a keyboard make writing code easier.</p>
+    <h4>Can I use it offline?</h4>
+    <p>Not at the moment. The browser needs a connection to download the Python runtime and editor libraries, and they are cached by your browser afterwards.</p>
+    <h4>Who made it?</h4>
+    <p>Hussain Compiler was built by Hussain to make writing and running Python simple. The source code is open on <a href="https://github.com/HussainAlsari/hussain-py-compiler" target="_blank" rel="noopener">GitHub</a>. If you find it useful, a star on the repository is a great way to support it.</p>
+  </section>
 
 <script>
 (() => {
