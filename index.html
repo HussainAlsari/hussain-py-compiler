@@ -1,119 +1,299 @@
 <!doctype html>
 <html lang="en" dir="ltr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0e639c">
-  <title>Get Started with Hussain Compiler: Run Your First Python Program Online</title>
-  <meta name="description" content="A short guide to Hussain Compiler: run your first Python program in the browser, use input(), manage files, install packages, and learn the keyboard shortcuts.">
-  <link rel="canonical" href="https://hussaincompiler.com/about.html">
-  <meta property="og:type" content="article">
+  <meta charset="utf-8">  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#181818">
+  <meta name="description" content="A simple, browser-based Python IDE by Hussain. Write and run Python without installing anything.">
+  <meta property="og:type" content="website">
   <meta property="og:site_name" content="Hussain Compiler">
-  <meta property="og:title" content="Get Started with Hussain Compiler">
-  <meta property="og:description" content="Run your first Python program online in a few steps, with tips and keyboard shortcuts.">
-  <meta property="og:url" content="https://hussaincompiler.com/about.html">
+  <meta property="og:title" content="Hussain Compiler — Online Python IDE">
+  <meta property="og:description" content="A simple, browser-based Python IDE by Hussain. Write and run Python without installing anything.">
+  <meta property="og:url" content="https://hussaincompiler.com/">
   <meta property="og:image" content="https://hussaincompiler.com/hussain-compiler-welcome.jpeg">
+  <meta property="og:image:alt" content="Hussain Compiler">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-  <style>
-    :root { --bg:#f4f6f8; --surface:#fff; --fg:#1b2430; --muted:#5b6674; --accent:#0e639c; --line:#dde3ea; --code:#eef2f6; }
-    @media (prefers-color-scheme: dark) { :root { --bg:#12161b; --surface:#1b2128; --fg:#e8edf2; --muted:#9aa6b2; --accent:#4daafc; --line:#2c353f; --code:#222a33; } }
-    * { box-sizing:border-box; }
-    body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.7 Georgia,"Times New Roman",serif; }
-    a { color:var(--accent); }
-    .top { background:var(--surface); border-bottom:1px solid var(--line); }
-    .top div { max-width:900px; margin:0 auto; padding:14px 20px; display:flex; flex-wrap:wrap; gap:8px 20px; align-items:center; font-family:system-ui,sans-serif; font-size:15px; }
-    .top strong { margin-inline-end:auto; font-size:17px; }
-    .hero { background:var(--accent); color:#fff; }
-    .hero div { max-width:900px; margin:0 auto; padding:48px 20px 52px; }
-    .hero h1 { margin:0 0 10px; font-size:clamp(1.7rem,4vw,2.5rem); line-height:1.2; }
-    .hero p { margin:0; max-width:640px; font-size:1.1rem; opacity:.95; }
-    main { max-width:900px; margin:0 auto; padding:8px 20px 64px; }
-    h2 { margin:2.2em 0 .6em; font-size:1.5rem; font-family:system-ui,sans-serif; }
-    .steps { counter-reset:s; display:grid; gap:14px; padding:0; list-style:none; }
-    .steps li { counter-increment:s; position:relative; padding:16px 18px 16px 62px; border:1px solid var(--line); border-radius:12px; background:var(--surface); }
-    .steps li::before { content:counter(s); position:absolute; left:16px; top:16px; width:32px; height:32px; border-radius:50%; background:var(--accent); color:#fff; display:grid; place-items:center; font:700 15px system-ui,sans-serif; }
-    .steps b { display:block; font-family:system-ui,sans-serif; }
-    pre { margin:10px 0 0; padding:12px 14px; border-radius:8px; background:var(--code); overflow:auto; font:14px/1.6 Consolas,"Courier New",monospace; }
-    code { padding:1px 6px; border-radius:4px; background:var(--code); font:.9em Consolas,"Courier New",monospace; }
-    pre code { padding:0; background:none; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px; }
-    .tip { padding:16px 18px; border:1px solid var(--line); border-radius:12px; background:var(--surface); }
-    .tip b { font-family:system-ui,sans-serif; }
-    .tip p { margin:6px 0 0; color:var(--muted); font-size:.95rem; }
-    .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface); }
-    table { width:100%; border-collapse:collapse; font-family:system-ui,sans-serif; font-size:15px; }
-    th, td { padding:10px 14px; text-align:left; border-bottom:1px solid var(--line); }
-    tr:last-child td { border-bottom:0; }
-    th { color:var(--muted); font-weight:600; font-size:13px; text-transform:uppercase; letter-spacing:.04em; }
-    kbd { padding:2px 7px; border:1px solid var(--line); border-radius:5px; background:var(--code); font:13px Consolas,monospace; }
-    .cta { display:inline-block; margin-top:8px; padding:12px 22px; border-radius:8px; background:var(--accent); color:#fff; text-decoration:none; font:600 16px system-ui,sans-serif; }
-    footer { max-width:900px; margin:0 auto; padding:0 20px 48px; color:var(--muted); font:14px system-ui,sans-serif; }
-  </style>
+  <meta name="twitter:title" content="Hussain Compiler — Online Python IDE">
+  <meta name="twitter:description" content="A simple, browser-based Python IDE by Hussain. Write and run Python without installing anything.">
+  <meta name="twitter:image" content="https://hussaincompiler.com/hussain-compiler-welcome.jpeg">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@graph": [
-      { "@type": "AboutPage", "name": "Get Started with Hussain Compiler", "url": "https://hussaincompiler.com/about.html",
-        "isPartOf": { "@type": "WebSite", "name": "Hussain Compiler", "url": "https://hussaincompiler.com/" } },
-      { "@type": "BreadcrumbList", "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://hussaincompiler.com/" },
-        { "@type": "ListItem", "position": 2, "name": "Get started", "item": "https://hussaincompiler.com/about.html" } ] }
-    ]
+    "@type": "WebApplication",
+    "name": "Hussain Compiler",
+    "url": "https://hussaincompiler.com/",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any (web browser)",
+    "description": "A simple, browser-based Python IDE. Write and run Python without installing anything.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
   }
   </script>
+  <title>Hussain Compiler — Online Python IDE</title>
+  <link rel="canonical" href="https://hussaincompiler.com/" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+  <link rel="stylesheet" href="./style.css?v=about-modal-2">
+  <link rel="stylesheet" href="./courses.css?v=course-removed-1">
+  <link rel="stylesheet" href="./i18n.css">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="apple-touch-icon" href="./favicon.svg">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js" defer></script>
+    <script src="./i18n.js" defer></script>
+  <script src="./lang/ar.js?v=run-output-instructions-2" defer></script>
+  <script src="./app.js?v=about-modal-2" defer></script>
+  <script src="./courses.js?v=run-output-instructions-2" defer></script>
 </head>
 <body>
-  <div class="top"><div><strong>Hussain Compiler</strong><a href="./">Editor</a><a href="./about.html" aria-current="page">Get started</a><a href="https://github.com/HussainAlsari/hussain-py-compiler" rel="noopener">GitHub</a></div></div>
-  <header class="hero"><div>
-    <h1>Get started with Hussain Compiler</h1>
-    <p>Go from a blank editor to a running Python program in about a minute. Nothing to install, nothing to sign up for.</p>
-  </div></header>
+  <div class="app-shell">
+    <header class="titlebar">
+      <div class="brand" aria-label="Hussain Compiler">
+        <span class="brand-mark" aria-hidden="true">HC</span>
+        <h1 class="brand-name">Hussain Compiler</h1>
+      </div>
 
-  <main>
-    <h2>Run your first program</h2>
-    <ol class="steps">
-      <li><b>Open the editor</b>Go to <a href="./">hussaincompiler.com</a>. A file called <code>main.py</code> is already waiting for you in the Explorer on the left.</li>
-      <li><b>Write a few lines</b>Click inside the editor and type:
-<pre><code>name = input("What is your name? ")
-print("Hello,", name)</code></pre></li>
-      <li><b>Press Run Python</b>Use the blue button at the top right of the editor, or press <kbd>Ctrl</kbd> + <kbd>Enter</kbd>. The first run takes a little longer while the Python runtime downloads.</li>
-      <li><b>Answer in the terminal</b>The question appears in the terminal at the bottom. Click there, type your name, and press Enter to see the result.</li>
-      <li><b>Save your work</b>Press <kbd>Ctrl</kbd> + <kbd>S</kbd> to keep the file in this browser, or use Download to save a copy to your computer.</li>
-    </ol>
+      <nav class="menubar" id="menuBar" aria-label="Application menu">
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">File</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="new-file"><span>New File</span><kbd>Ctrl+N</kbd></button>
+            <button type="button" data-command="open-files"><span>Open Files…</span><kbd>Ctrl+O</kbd></button>
+            <div class="menu-divider"></div>
+            <button type="button" data-command="save"><span>Save</span><kbd>Ctrl+S</kbd></button>
+            <button type="button" data-command="download"><span>Download Current File</span><kbd>Ctrl+Shift+S</kbd></button>
+            <div class="menu-divider"></div>
+            <button type="button" data-command="delete-file"><span>Delete Current File</span><kbd></kbd></button>
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">Edit</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="undo"><span>Undo</span><kbd>Ctrl+Z</kbd></button>
+            <button type="button" data-command="redo"><span>Redo</span><kbd>Ctrl+Y</kbd></button>
+            <div class="menu-divider"></div>
+            <button type="button" data-command="find"><span>Find</span><kbd>Ctrl+F</kbd></button>
+            <button type="button" data-command="replace"><span>Replace</span><kbd>Ctrl+H</kbd></button>
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">Selection</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="select-all"><span>Select All</span><kbd>Ctrl+A</kbd></button>
+            <button type="button" data-command="indent"><span>Indent Line</span><kbd>Tab</kbd></button>
+            <button type="button" data-command="outdent"><span>Outdent Line</span><kbd>Shift+Tab</kbd></button>
+            <button type="button" data-command="go-to-line"><span>Go to Line…</span><kbd>Ctrl+G</kbd></button>
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">View</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="toggle-sidebar"><span>Toggle Explorer</span><kbd>Ctrl+B</kbd></button>
+            <button type="button" data-command="toggle-panel"><span>Toggle Panel</span><kbd>Ctrl+J</kbd></button>
+            <button type="button" id="toggleWordWrapItem" data-command="toggle-word-wrap"><span>Word Wrap</span><span class="check-mark" aria-hidden="true"></span></button>
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">Settings</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="settings"><span>Editor Settings…</span><kbd></kbd></button>
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">Run</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="run"><span>Run Python File</span><kbd>Ctrl+Enter</kbd></button>
+            <button type="button" data-command="stop"><span>Stop Execution</span><kbd>Shift+F5</kbd></button>
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">Terminal</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="focus-terminal"><span>Focus Terminal</span><kbd>Ctrl+`</kbd></button>
+            <button type="button" data-command="clear-terminal"><span>Clear Terminal</span><kbd></kbd></button>
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <button class="menu-trigger" type="button" aria-expanded="false">Help</button>
+          <div class="menu-dropdown" hidden>
+            <button type="button" data-command="python-docs"><span>Python Documentation</span><kbd></kbd></button>
+            <button type="button" data-command="about"><span>About Hussain Compiler</span><kbd></kbd></button>
+          </div>
+        </div>
+      </nav>
 
-    <h2>Useful things to try next</h2>
-    <div class="grid">
-      <div class="tip"><b>Add more files</b><p>Create extra <code>.py</code> files in the Explorer, then use <code>import</code> to load one from another.</p></div>
-      <div class="tip"><b>Install a package</b><p>Type a package name in the Python Packages box and press Install. It uses <code>micropip</code>, so pure-Python packages work best.</p></div>
-      <div class="tip"><b>Follow a lesson</b><p>Open the courses from the activity bar. Each lesson loads starter code and checks your requirements as you type.</p></div>
-      <div class="tip"><b>Share a result</b><p>Use Save PNG in the terminal header to export your code and its output as one image.</p></div>
-      <div class="tip"><b>Change the language</b><p>Open Settings, then Editor Settings, to switch the interface or the lessons between English and Arabic.</p></div>
-      <div class="tip"><b>Fix errors quickly</b><p>When Python reports a problem, the message names the file and the line number so you can jump straight to it.</p></div>
+      <div class="window-title" id="windowTitle">main.py — Hussain Compiler</div>
+      <div class="titlebar-actions">
+        <span class="runtime-pill"><i class="status-dot" id="statusDot"></i><span id="runtimeStatus">Python on demand</span><span id="pythonVersion" hidden>3</span></span>
+        <span class="pages-badge">WEB IDE</span>
+      </div>
+      <button class="about-top-button" id="aboutTopBtn" type="button">About</button>
+    </header>
+
+    <div class="workspace" id="workspace">
+      <nav class="activity-bar" aria-label="Activity bar">
+        <button class="activity-button active" id="explorerBtn" type="button" title="Explorer" aria-label="Explorer">▤</button>
+        <button class="activity-button" id="searchBtn" type="button" title="Search in file" aria-label="Search in file">⌕</button>
+        <button class="activity-button" id="runActivityBtn" type="button" title="Run Python" aria-label="Run Python">▷</button>
+        <button class="activity-button" id="extensionsBtn" type="button" title="Python packages" aria-label="Python packages">▦</button>
+        <span class="activity-spacer"></span>
+        <button class="activity-button account-button" id="aboutBtn" type="button" title="About" aria-label="About">●</button>
+      </nav>
+
+      <aside class="sidebar" id="sidebar">
+        <div class="side-heading">
+          <span>EXPLORER</span>
+          <button class="icon-button" id="newFileBtn" type="button" title="New File" aria-label="New File">＋</button>
+        </div>
+        <div class="workspace-root" aria-label="Hussain Workspace">
+          <span class="root-chevron">⌄</span><strong>HUSSAIN WORKSPACE</strong>
+          <span class="root-actions"><button type="button" title="New File" id="rootNewFileBtn" aria-label="New File">＋</button><button type="button" title="Open Files" id="rootOpenFilesBtn" aria-label="Open Files"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 20h16"/></svg></button></span>
+        </div>
+        <div class="file-list" id="fileList" aria-label="Workspace files"></div>
+        <div class="sidebar-spacer"></div>
+        <section class="package-box" aria-labelledby="packageTitle">
+          <div class="package-heading">
+            <span class="package-icon">▦</span>
+            <div><strong id="packageTitle">PYTHON PACKAGES</strong><small>Install browser-compatible packages</small></div>
+          </div>
+          <form id="packageForm" class="package-form">
+            <input id="packageName" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. requests" aria-label="Package name">
+            <button id="installBtn" type="submit">Install</button>
+          </form>
+          <p class="package-hint">Packages that require native system extensions may not run in WebAssembly.</p>
+        </section>
+        <div class="storage-note"><span class="storage-icon">●</span> Stored in this browser</div>
+      </aside>
+
+      <main class="main-panel" id="mainPanel">
+        <div class="editor-toolbar">
+          <div class="breadcrumbs"><span>HUSSAIN WORKSPACE</span><span class="breadcrumb-separator">›</span><span class="python-file-icon">Py</span><span id="breadcrumbFileName">main.py</span></div>
+          <div class="toolbar-actions">
+            <button class="tool-button" id="openFilesBtn" type="button" title="Open Files">
+              <span class="button-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 20h16"/></svg></span><span>Open</span>
+            </button>
+            <button class="tool-button" id="saveBtn" type="button" title="Save (Ctrl+S)">
+              <span class="button-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h12l4 4v14H3V3h2z"/><path d="M7 3v6h10V3"/><path d="M7 21v-8h10v8"/></svg></span><span>Save</span>
+            </button>
+            <button class="tool-button" id="downloadBtn" type="button" title="Download Current File">
+              <span class="button-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg></span><span>Download</span>
+            </button>
+            <button class="stop-button" id="stopBtn" type="button" disabled>Stop</button>
+            <button class="run-button" id="runBtn" type="button" title="Run Python File (Ctrl+Enter)"><span class="play-icon">▶</span> Run Python <kbd>Ctrl ↵</kbd></button>
+          </div>
+        </div>
+
+        <section class="editor-stage" aria-label="Code editor">
+          <div class="editor-tabbar">
+            <div class="active-file-tab"><span class="python-file-icon">Py</span><span id="activeFileName">main.py</span><i id="dirtyMark" class="dirty-mark" hidden></i></div>
+            <div class="editor-actions"><span id="saveState">Saved</span><button class="icon-button small" id="deleteFileBtn" type="button" title="Delete Current File" aria-label="Delete Current File">×</button></div>
+          </div>
+          <div class="editor-wrap"><textarea id="code" aria-label="Python code editor"></textarea></div>
+          <div class="editor-footer"><span id="cursorPosition">Ln 1, Col 1</span><span>Python&nbsp; · &nbsp;UTF-8&nbsp; · &nbsp;Spaces: 4</span></div>
+        </section>
+
+        <section class="output-panel" aria-label="Terminal">
+          <div class="output-header">
+            <div class="panel-tabs"><button class="panel-tab active" type="button">TERMINAL</button><span class="terminal-profile">Python WebAssembly</span></div>
+            <div class="output-actions"><span id="runState">Ready</span><button class="text-button" id="downloadOutputImageBtn" type="button" title="Download input and output as a PNG image">Save PNG</button><button class="text-button" id="clearOutputBtn" type="button" title="Clear Terminal">Clear</button></div>
+          </div>
+          <div class="console" id="console" role="log" aria-live="polite" aria-label="Python terminal. Type here when the program requests input." tabindex="0">
+            <div class="welcome-line"><span class="console-prompt">›</span> Python runs in your browser. Type in this terminal when your program calls <b>input()</b>.</div>
+          </div>
+        </section>
+      </main>
     </div>
 
-    <h2>Keyboard shortcuts</h2>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Action</th><th>Shortcut</th></tr></thead>
-      <tbody>
-        <tr><td>Run the current file</td><td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td></tr>
-        <tr><td>Stop execution</td><td><kbd>Shift</kbd> + <kbd>F5</kbd></td></tr>
-        <tr><td>New file</td><td><kbd>Ctrl</kbd> + <kbd>N</kbd></td></tr>
-        <tr><td>Open files</td><td><kbd>Ctrl</kbd> + <kbd>O</kbd></td></tr>
-        <tr><td>Save</td><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td></tr>
-        <tr><td>Download current file</td><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td></tr>
-        <tr><td>Find / Replace</td><td><kbd>Ctrl</kbd> + <kbd>F</kbd> / <kbd>Ctrl</kbd> + <kbd>H</kbd></td></tr>
-        <tr><td>Go to line</td><td><kbd>Ctrl</kbd> + <kbd>G</kbd></td></tr>
-        <tr><td>Toggle Explorer / Panel</td><td><kbd>Ctrl</kbd> + <kbd>B</kbd> / <kbd>Ctrl</kbd> + <kbd>J</kbd></td></tr>
-      </tbody>
-    </table></div>
+    <footer class="status-bar">
+      <div class="status-left"><span class="status-item status-branch">⌘&nbsp; main</span><span class="status-item" id="statusWorkspace">Local Workspace</span></div>
+      <div class="status-right"><span id="statusRuntime">Python 3 · WASM</span><span id="statusEncoding">UTF-8</span><span>Spaces: 4</span></div>
+    </footer>
 
-    <h2>Good to know</h2>
-    <p>Hussain Compiler runs Python in WebAssembly, so packages that rely on native system code may not load. Your files live in your own browser; clearing browser data removes them, so download anything important. The project is open source and maintained by Hussain on <a href="https://github.com/HussainAlsari/hussain-py-compiler" rel="noopener">GitHub</a>.</p>
-    <p><a class="cta" href="./">Open the editor</a></p>
-  </main>
-  <footer>© Hussain Compiler · <a href="https://hussaincompiler.com/">hussaincompiler.com</a></footer>
+    <input id="filePicker" type="file" accept=".py,.pyw,.txt,.json,.csv,.md,.toml" multiple hidden>
+    <dialog class="settings-dialog" id="settingsDialog" aria-labelledby="settingsTitle">
+      <div class="settings-heading">
+        <div><span class="settings-eyebrow">PREFERENCES</span><h2 id="settingsTitle">Editor Settings</h2></div>
+        <button class="icon-button" id="settingsCloseBtn" type="button" aria-label="Close settings">×</button>
+      </div>
+      <label class="setting-row" for="autoCloseBracketsSetting">
+        <span><strong>Auto-close brackets and quotes</strong><small>Insert the matching ) ] } or quote as you type.</small></span>
+        <input id="autoCloseBracketsSetting" type="checkbox" checked>
+      </label>
+            <label class="setting-row" for="autoClearTerminalSetting">
+        <span><strong>Clear terminal before each run</strong><small>Replace previous output with the latest run.</small></span>
+        <input id="autoClearTerminalSetting" type="checkbox" checked>
+      </label>
+<label class="setting-row font-setting" for="fontSizeSetting">
+        <span><strong>Editor font size</strong><small>Adjust how large code appears in the editor.</small></span>
+        <span class="font-size-control"><input id="fontSizeSetting" type="range" min="10" max="24" step="1" value="13"><output id="fontSizeValue" for="fontSizeSetting">13 px</output></span>
+      </label>
+      <div class="settings-footer"><span>Preferences are saved in this browser.</span><button class="settings-done" id="settingsDoneBtn" type="button">Done</button></div>
+    </dialog>
+    <dialog class="about-dialog" id="aboutDialog" aria-labelledby="aboutTitle">
+      <div class="about-dialog-heading">
+        <h2 id="aboutTitle">About Hussain Compiler</h2>
+        <button class="icon-button" id="aboutCloseBtn" type="button" aria-label="Close">×</button>
+      </div>
+      <p>Hussain Compiler is a free, browser-based Python editor powered by Pyodide and WebAssembly. Write, run and test Python without installing anything, with built-in lessons and Arabic support.</p>
+      <div class="about-dialog-actions">
+        <button class="settings-done" id="aboutDoneBtn" type="button">Close</button>
+      </div>
+    </dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </div>
+  <noscript>Hussain Compiler is an online Python IDE. Please enable JavaScript to run Python in your browser.</noscript>
+
+<script>
+(() => {
+  const style = document.createElement('style');
+  style.textContent = `.welcome-dialog { width:min(900px,92vw); max-height:90vh; padding:0; border:1px solid #454545; border-radius:14px; color:#eee; background:#1e1e1e; box-shadow:0 24px 80px #000b; overflow:hidden } .welcome-dialog::backdrop { background:#000b; backdrop-filter:blur(4px) } .welcome-layout { display:grid; grid-template-columns:1.1fr 1fr; min-height:360px } .welcome-photo { width:100%; height:100%; min-height:360px; object-fit:cover; filter:grayscale(1) } .welcome-copy { padding:38px 32px; display:flex; flex-direction:column; justify-content:center; gap:16px } .welcome-copy h2 { margin:0; font-size:28px } .welcome-copy p { color:#bbb; line-height:1.6; margin:0 } .welcome-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px } .welcome-actions a,.welcome-actions button { padding:10px 14px; border-radius:6px; border:1px solid #555; color:#eee; background:#292929; text-decoration:none; cursor:pointer; font:inherit } .welcome-actions .welcome-primary { background:#1677d2; border-color:#1677d2 } @media(max-width:620px){.welcome-layout{grid-template-columns:1fr}.welcome-photo{height:190px;min-height:190px}.welcome-copy{padding:24px}}`;
+  document.head.appendChild(style);
+  const dialog = document.createElement('dialog');
+  dialog.className = 'welcome-dialog';
+  dialog.setAttribute('aria-labelledby','welcome-title');
+  dialog.innerHTML = `<div class="welcome-layout"><img class="welcome-photo" src="./hussain-compiler-welcome.jpeg" alt="Hussain Compiler creator portrait"><div class="welcome-copy"><span>WELCOME TO</span><h2 id="welcome-title">Hussain Compiler</h2><p>Built by Hussain to make writing and running Python simple, right in your browser.</p><p>If you enjoy it, please give the project a star on GitHub. It means a lot!</p><div class="welcome-actions"><a class="welcome-primary" href="https://github.com/HussainAlsari/hussain-py-compiler" target="_blank" rel="noopener">View on GitHub</a><a href="https://github.com/HussainAlsari/hussain-py-compiler/stargazers" target="_blank" rel="noopener">★ Star the repo</a><a href="https://buymeacoffee.com/xpxxxu" target="_blank" rel="noopener">Buy Me a Coffee</a><button type="button" data-dismiss>Start Coding</button></div></div></div>`;
+  document.body.appendChild(dialog);
+  dialog.addEventListener('click', event => { if(event.target === dialog || event.target.closest('[data-dismiss]')) dialog.close(); });
+  dialog.showModal();
+})();
+</script>
+<style>
+  @media (max-width: 900px) and (max-height: 520px) {
+    #mainPanel { grid-template-rows: 32px minmax(90px, 1fr) 6px minmax(76px, 28%) !important; }
+    #mainPanel.panel-hidden { grid-template-rows: 32px minmax(0, 1fr) 0 0 !important; }
+  }
+</style>
+
+<script>
+(() => {
+ const d=document.querySelector('.welcome-dialog'); if(!d)return;
+ const css=document.createElement('style'); css.textContent='.welcome-dialog[open]{display:flex;flex-direction:column;width:min(760px,calc(100vw - 30px));max-height:92vh;max-height:92dvh;padding:0;overflow:auto}.welcome-dialog::backdrop{background:rgb(0 0 0 / 58%);backdrop-filter:blur(2px)}.welcome-photo{display:block;width:100%;height:auto;max-height:min(38vh,340px);object-fit:contain;object-position:center;background:#eee}.welcome-copy{padding:24px 30px}.welcome-close{position:absolute;right:12px;top:12px;z-index:2;width:36px;height:36px;border:1px solid #777;border-radius:50%;background:#181818d9;color:white;font-size:24px;cursor:pointer}.coffee-image-link{display:inline-flex;align-items:center}.coffee-image{display:block;height:38px;width:auto}.welcome-start{min-width:130px;min-height:40px;background:#0e639c;border-color:#0e639c;color:#fff;font-weight:700;letter-spacing:.35px}.welcome-start:hover{background:#1177bb}@media(max-width:620px){.welcome-image{max-height:34vh}.welcome-content{padding:20px}}'; document.head.append(css);
+ const close=document.createElement('button'); close.className='welcome-close'; close.type='button'; close.setAttribute('aria-label','Close welcome message'); close.textContent='×'; d.prepend(close); close.addEventListener('click',()=>d.close());
+ const coffee=d.querySelector('a[href*="buymeacoffee.com"]'); if(coffee){coffee.className='coffee-image-link';coffee.setAttribute('aria-label','Buy Me a Coffee');coffee.innerHTML='<img class="coffee-image" src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee">';}
+ const star=d.querySelector('a[href*="stargazers"]'); if(star){star.href='https://github.com/HussainAlsari/hussain-py-compiler';star.textContent='★ Star the repo';}
+ const start=d.querySelector('button[data-dismiss]'); if(start){start.textContent='START CODING';start.classList.add('welcome-start');start.addEventListener('click',()=>d.close());}
+ if(d.open)d.close(); window.setTimeout(()=>d.showModal(),800);
+})();
+</script>
+
+<script>document.querySelector('.welcome-layout')?.style.setProperty('display','flex','important');document.querySelector('.welcome-layout')?.style.setProperty('flex-direction','column','important');</script>
+
+<script>const photo=document.querySelector('.welcome-photo');if(photo){photo.style.setProperty('height','auto','important');photo.style.setProperty('min-height','0','important');photo.style.setProperty('max-height','none','important');}</script>
+
+<script>
+(() => {
+  if(document.querySelector('.panel-splitter')||document.querySelector('.terminal-zoom'))return;
+  const w=document.getElementById('workspace'),m=document.getElementById('mainPanel'),o=document.querySelector('.output-panel'),c=document.getElementById('console');if(!w||!m||!o||!c)return;
+  const read=(k,d)=>{try{const n=Number(localStorage.getItem(k));return n>0&&Number.isFinite(n)?n:d}catch(_){return d}},save=(k,v)=>{try{localStorage.setItem(k,String(Math.round(v)))}catch(_){}};
+  let side=Math.min(440,Math.max(180,read('hussain-explorer-width',244))),term=read('hussain-terminal-height',0),font=Math.min(24,Math.max(10,read('hussain-terminal-font-size',12)));
+  const s=document.createElement('style');s.textContent='.workspace{grid-template-columns:48px var(--explorer-width,244px) 7px minmax(0,1fr)!important}.workspace.sidebar-collapsed{grid-template-columns:48px 0 7px minmax(0,1fr)!important}.sidebar{grid-column:2}.main-panel{grid-column:4;grid-template-rows:36px minmax(150px,1fr) 7px var(--terminal-height,27%)!important}.main-panel.panel-hidden{grid-template-rows:36px minmax(0,1fr) 0 0!important}.panel-splitter{position:relative;z-index:4;touch-action:none;user-select:none;background:#202020}.panel-splitter:hover,.panel-splitter:focus-visible{background:#007acc;outline:0}.explorer-splitter{grid-column:3;grid-row:1;cursor:col-resize;border-inline:1px solid #303031}.terminal-splitter{grid-row:3;cursor:row-resize;border-block:1px solid #303031}.main-panel.panel-hidden .terminal-splitter{display:none}.terminal-zoom{display:inline-flex;align-items:center;gap:3px}.terminal-zoom button{width:22px;height:22px;padding:0;border:1px solid #414141;border-radius:3px;background:#252526;color:#ddd;cursor:pointer;font:13px monospace}.terminal-zoom-value{min-width:34px;text-align:center;font:10px monospace}@media(max-width:760px){.workspace,.workspace.sidebar-collapsed{grid-template-columns:40px minmax(0,1fr)!important}.main-panel{grid-column:2}.explorer-splitter{display:none}}@media(max-width:560px){.workspace,.workspace.sidebar-collapsed{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) 48px!important}.sidebar{grid-column:1;grid-row:1}.main-panel{grid-column:1;grid-row:1;grid-template-rows:36px minmax(150px,1fr) 7px minmax(130px,30%)!important}.main-panel.panel-hidden{grid-template-rows:36px minmax(0,1fr) 0 0!important}.activity-bar{grid-column:1;grid-row:2}}';document.head.append(s);w.style.setProperty('--explorer-width',side+'px');if(term)m.style.setProperty('--terminal-height',term+'px');
+  const make=(cls,label,ori,p,b)=>{const e=document.createElement('div');e.className='panel-splitter '+cls;e.setAttribute('role','separator');e.setAttribute('aria-label',label);e.setAttribute('aria-orientation',ori);e.tabIndex=0;p.insertBefore(e,b);return e},sh=document.getElementById('sidebar')?make('explorer-splitter','Resize Explorer panel','vertical',w,m):null,th=make('terminal-splitter','Resize terminal panel','horizontal',m,o);
+  const bind=(e,change,pos,axis)=>{e.addEventListener('pointerdown',p=>{if(p.button!==0)return;p.preventDefault();e.setPointerCapture(p.pointerId);const move=q=>change(pos(q));e.addEventListener('pointermove',move);const done=()=>{e.removeEventListener('pointermove',move);e.removeEventListener('pointerup',done);e.removeEventListener('pointercancel',done)};e.addEventListener('pointerup',done,{once:true});e.addEventListener('pointercancel',done,{once:true})});e.addEventListener('keydown',p=>{const d=p.shiftKey?40:16,n=axis==='x'?(p.key==='ArrowRight'?d:p.key==='ArrowLeft'?-d:0):(p.key==='ArrowUp'?d:p.key==='ArrowDown'?-d:0);if(n){p.preventDefault();change((axis==='x'?side:term)+n)}})};
+  if(sh)bind(sh,x=>{side=Math.max(180,Math.min(440,x));w.style.setProperty('--explorer-width',side+'px');save('hussain-explorer-width',side)},p=>p.clientX-w.getBoundingClientRect().left-48,'x');bind(th,x=>{term=Math.max(120,Math.min(Math.max(180,m.clientHeight-203),x));m.style.setProperty('--terminal-height',term+'px');save('hussain-terminal-height',term)},p=>m.getBoundingClientRect().bottom-p.clientY,'y');
+  const z=document.createElement('div');z.className='terminal-zoom';z.innerHTML='<button type="button" aria-label="Decrease terminal font size">−</button><span class="terminal-zoom-value" aria-live="polite"></span><button type="button" aria-label="Increase terminal font size">+</button>';const [minus,plus]=z.querySelectorAll('button'),label=z.querySelector('span'),apply=()=>{c.style.setProperty('font-size',font+'px','important');label.textContent=font+'px';minus.disabled=font<=10;plus.disabled=font>=24};minus.onclick=()=>{font=Math.max(10,font-1);save('hussain-terminal-font-size',font);apply()};plus.onclick=()=>{font=Math.min(24,font+1);save('hussain-terminal-font-size',font);apply()};document.querySelector('.output-actions')?.prepend(z);apply();
+})();
+</script>
 </body>
 </html>
-
-
