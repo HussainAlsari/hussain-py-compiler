@@ -29,6 +29,7 @@ HC.register({
     "PREFERENCES": "التفضيلات", "Editor Settings": "إعدادات المحرر", "Close settings": "إغلاق الإعدادات",
     "Auto-close brackets and quotes": "إغلاق الأقواس وعلامات الاقتباس تلقائياً", "Insert the matching ) ] } or quote as you type.": "يضيف القوس أو علامة الاقتباس المطابقة أثناء الكتابة.",
     "Clear terminal before each run": "مسح الطرفية قبل كل تشغيل", "Replace previous output with the latest run.": "يستبدل المخرجات السابقة بمخرجات آخر تشغيل.",
+    "Show reaction image on errors": "إظهار صورة التفاعل عند الأخطاء", "Display an image in the terminal when code reports an error.": "يعرض صورة في الطرفية عند حدوث خطأ في الكود.",
     "Editor font size": "حجم خط المحرر", "Adjust how large code appears in the editor.": "اضبط حجم ظهور الكود في المحرر.",
     "Preferences are saved in this browser.": "تُحفظ التفضيلات في هذا المتصفح.", "Done": "تم",
     "WELCOME TO": "مرحباً بك في", "Built by Hussain to make writing and running Python simple, right in your browser.": "بناه حسين ليجعل كتابة بايثون وتشغيلها سهلة، مباشرة في متصفحك.",

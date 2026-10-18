@@ -46,8 +46,6 @@
   <script src="./lang/ar.js?v=run-output-instructions-2" defer></script>
   <script src="./app.js?v=about-modal-2" defer></script>
   <script src="./courses.js?v=run-output-instructions-2" defer></script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1654825135440884"
-     crossorigin="anonymous"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -227,6 +225,10 @@
         <span><strong>Clear terminal before each run</strong><small>Replace previous output with the latest run.</small></span>
         <input id="autoClearTerminalSetting" type="checkbox" checked>
       </label>
+            <label class="setting-row" for="showErrorReactionSetting">
+              <span><strong>Show reaction image on errors</strong><small>Display an image in the terminal when code reports an error.</small></span>
+              <input id="showErrorReactionSetting" type="checkbox">
+            </label>
 <label class="setting-row font-setting" for="fontSizeSetting">
         <span><strong>Editor font size</strong><small>Adjust how large code appears in the editor.</small></span>
         <span class="font-size-control"><input id="fontSizeSetting" type="range" min="10" max="24" step="1" value="13"><output id="fontSizeValue" for="fontSizeSetting">13 px</output></span>
@@ -250,7 +252,7 @@
 <script>
 (() => {
   const style = document.createElement('style');
-  style.textContent = `.welcome-dialog { width:min(900px,92vw); max-height:90vh; padding:0; border:1px solid #454545; border-radius:14px; color:#eee; background:#1e1e1e; box-shadow:0 24px 80px #000b; overflow:hidden } .welcome-dialog::backdrop { background:#000b; backdrop-filter:blur(4px) } .welcome-layout { display:grid; grid-template-columns:1.1fr 1fr; min-height:360px } .welcome-photo { width:100%; height:100%; min-height:360px; object-fit:cover; filter:grayscale(1) } .welcome-copy { padding:38px 32px; display:flex; flex-direction:column; justify-content:center; gap:16px } .welcome-copy h2 { margin:0; font-size:28px } .welcome-copy p { color:#bbb; line-height:1.6; margin:0 } .welcome-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px } .welcome-actions a,.welcome-actions button { padding:10px 14px; border-radius:6px; border:1px solid #555; color:#eee; background:#292929; text-decoration:none; cursor:pointer; font:inherit } .welcome-actions .welcome-primary { background:#1677d2; border-color:#1677d2 } @media(max-width:620px){.welcome-layout{grid-template-columns:1fr}.welcome-photo{height:190px;min-height:190px}.welcome-copy{padding:24px}}`;
+  style.textContent = `.welcome-dialog { width:min(900px,92vw); max-height:90vh; padding:0; border:1px solid #454545; border-radius:14px; color:#eee; background:#1e1e1e; box-shadow:0 24px 80px #000b; overflow:hidden } .welcome-dialog::backdrop { background:#000b; backdrop-filter:blur(4px) } .welcome-layout { display:grid; grid-template-columns:1.1fr 1fr; min-height:360px } .welcome-photo { display:block; width:100%; height:auto; max-height:min(38vh,340px); object-fit:contain; object-position:center; background:#eee } .welcome-copy { padding:38px 32px; display:flex; flex-direction:column; justify-content:center; gap:16px } .welcome-copy h2 { margin:0; font-size:28px } .welcome-copy p { color:#bbb; line-height:1.6; margin:0 } .welcome-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px } .welcome-actions a,.welcome-actions button { padding:10px 14px; border-radius:6px; border:1px solid #555; color:#eee; background:#292929; text-decoration:none; cursor:pointer; font:inherit } .welcome-actions .welcome-primary { background:#1677d2; border-color:#1677d2 } @media(max-width:620px){.welcome-layout{grid-template-columns:1fr}.welcome-photo{max-height:min(34vh,280px)}.welcome-copy{padding:24px}}`;
   document.head.appendChild(style);
   const dialog = document.createElement('dialog');
   dialog.className = 'welcome-dialog';
@@ -271,7 +273,7 @@
 <script>
 (() => {
  const d=document.querySelector('.welcome-dialog'); if(!d)return;
- const css=document.createElement('style'); css.textContent='.welcome-dialog[open]{display:flex;flex-direction:column;width:min(760px,calc(100vw - 30px));max-height:92vh;max-height:92dvh;padding:0;overflow:auto}.welcome-dialog::backdrop{background:rgb(0 0 0 / 58%);backdrop-filter:blur(2px)}.welcome-photo{display:block;width:100%;height:auto;max-height:min(38vh,340px);object-fit:contain;object-position:center;background:#eee}.welcome-copy{padding:24px 30px}.welcome-close{position:absolute;right:12px;top:12px;z-index:2;width:36px;height:36px;border:1px solid #777;border-radius:50%;background:#181818d9;color:white;font-size:24px;cursor:pointer}.coffee-image-link{display:inline-flex;align-items:center}.coffee-image{display:block;height:38px;width:auto}.welcome-start{min-width:130px;min-height:40px;background:#0e639c;border-color:#0e639c;color:#fff;font-weight:700;letter-spacing:.35px}.welcome-start:hover{background:#1177bb}@media(max-width:620px){.welcome-image{max-height:34vh}.welcome-content{padding:20px}}'; document.head.append(css);
+ const css=document.createElement('style'); css.textContent='.welcome-dialog[open]{display:flex;flex-direction:column;width:min(760px,calc(100vw - 30px));max-height:92vh;max-height:92dvh;padding:0;overflow:auto}.welcome-dialog::backdrop{background:rgb(0 0 0 / 58%);backdrop-filter:blur(2px)}.welcome-photo{width:100%;max-height:min(38vh,340px)}.welcome-copy{padding:24px 30px}.welcome-close{position:absolute;right:12px;top:12px;z-index:2;width:36px;height:36px;border:1px solid #777;border-radius:50%;background:#181818d9;color:white;font-size:24px;cursor:pointer}.coffee-image-link{display:inline-flex;align-items:center}.coffee-image{display:block;height:38px;width:auto}.welcome-start{min-width:130px;min-height:40px;background:#0e639c;border-color:#0e639c;color:#fff;font-weight:700;letter-spacing:.35px}.welcome-start:hover{background:#1177bb}'; document.head.append(css);
  const close=document.createElement('button'); close.className='welcome-close'; close.type='button'; close.setAttribute('aria-label','Close welcome message'); close.textContent='×'; d.prepend(close); close.addEventListener('click',()=>d.close());
  const coffee=d.querySelector('a[href*="buymeacoffee.com"]'); if(coffee){coffee.className='coffee-image-link';coffee.setAttribute('aria-label','Buy Me a Coffee');coffee.innerHTML='<img class="coffee-image" src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee">';}
  const star=d.querySelector('a[href*="stargazers"]'); if(star){star.href='https://github.com/HussainAlsari/hussain-py-compiler';star.textContent='★ Star the repo';}
@@ -281,8 +283,6 @@
 </script>
 
 <script>document.querySelector('.welcome-layout')?.style.setProperty('display','flex','important');document.querySelector('.welcome-layout')?.style.setProperty('flex-direction','column','important');</script>
-
-<script>const photo=document.querySelector('.welcome-photo');if(photo){photo.style.setProperty('height','auto','important');photo.style.setProperty('min-height','0','important');photo.style.setProperty('max-height','none','important');}</script>
 
 <script>
 (() => {

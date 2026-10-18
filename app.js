@@ -1,6 +1,6 @@
 const STORAGE_KEY = "hussain-compiler-workspace-v1";
 const SETTINGS_KEY = "hussain-compiler-settings-v1";
-const DEFAULT_SETTINGS = { autoCloseBrackets: true, fontSize: 13, autoClearTerminal: true };
+const DEFAULT_SETTINGS = { autoCloseBrackets: true, fontSize: 13, autoClearTerminal: true, showErrorReaction: false };
 const SAMPLE = `# Welcome to Hussain Compiler\n# Write Python here, then click Run Python\n\ndef greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("Python"))\n`;
 const PACKAGE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*(?:\[[A-Za-z0-9_,.-]+\])?(?:(?:===|==|~=|!=|<=|>=|<|>)\s*[A-Za-z0-9.*+_-]+(?:,(?:===|==|~=|!=|<=|>=|<|>)\s*[A-Za-z0-9.*+_-]+)*)?$/;
 
@@ -11,7 +11,7 @@ const elements = Object.fromEntries([
   "clearOutputBtn", "downloadOutputImageBtn", "packageForm", "packageName", "installBtn", "toast", "workspace",
   "mainPanel", "explorerBtn", "searchBtn", "runActivityBtn", "extensionsBtn", "aboutBtn", "aboutTopBtn",
   "rootNewFileBtn", "rootOpenFilesBtn", "windowTitle", "breadcrumbFileName", "toggleWordWrapItem",
-  "settingsDialog", "settingsCloseBtn", "settingsDoneBtn", "aboutDialog", "aboutCloseBtn", "aboutDoneBtn", "autoCloseBracketsSetting", "autoClearTerminalSetting", "fontSizeSetting", "fontSizeValue",
+  "settingsDialog", "settingsCloseBtn", "settingsDoneBtn", "aboutDialog", "aboutCloseBtn", "aboutDoneBtn", "autoCloseBracketsSetting", "autoClearTerminalSetting", "showErrorReactionSetting", "fontSizeSetting", "fontSizeValue",
 ].map((id) => [id, document.getElementById(id)]));
 
 let savedActiveFile = null;
@@ -95,6 +95,7 @@ function readSettings() {
     return {
       autoCloseBrackets: typeof saved?.autoCloseBrackets === "boolean" ? saved.autoCloseBrackets : DEFAULT_SETTINGS.autoCloseBrackets,
       autoClearTerminal: typeof saved?.autoClearTerminal === "boolean" ? saved.autoClearTerminal : DEFAULT_SETTINGS.autoClearTerminal,
+      showErrorReaction: typeof saved?.showErrorReaction === "boolean" ? saved.showErrorReaction : DEFAULT_SETTINGS.showErrorReaction,
       fontSize: Number.isInteger(saved?.fontSize) ? Math.min(24, Math.max(10, saved.fontSize)) : DEFAULT_SETTINGS.fontSize,
     };
   } catch (_) {
@@ -171,7 +172,7 @@ function appendOutput(text, kind = "") {
   const line = document.createElement("div");
   line.className = `console-line${kind ? ` ${kind}` : ""}`;
   line.textContent = text;
-  if (kind === "error") {
+  if (kind === "error" && settings.showErrorReaction) {
     const image = document.createElement("img");
     image.className = "console-error-image";
     image.src = "./error-reaction.png";
@@ -859,6 +860,7 @@ function openSettings() {
 function initSettings() {
   elements.autoCloseBracketsSetting.checked = settings.autoCloseBrackets;
   elements.autoClearTerminalSetting.checked = settings.autoClearTerminal;
+  elements.showErrorReactionSetting.checked = settings.showErrorReaction;
   elements.fontSizeSetting.value = String(settings.fontSize);
   elements.fontSizeValue.value = `${settings.fontSize} px`;
   elements.fontSizeValue.textContent = `${settings.fontSize} px`;
@@ -869,6 +871,10 @@ function initSettings() {
   });
   elements.autoClearTerminalSetting.addEventListener("change", () => {
     settings.autoClearTerminal = elements.autoClearTerminalSetting.checked;
+    saveSettings();
+  });
+  elements.showErrorReactionSetting.addEventListener("change", () => {
+    settings.showErrorReaction = elements.showErrorReactionSetting.checked;
     saveSettings();
   });
   elements.fontSizeSetting.addEventListener("input", () => {
