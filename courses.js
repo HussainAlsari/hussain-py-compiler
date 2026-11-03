@@ -119,6 +119,62 @@
         task: "Write a generator <code>evens(n)</code> that yields even numbers below n. Print <code>list(evens(10))</code>.", starter: "", expected: "[0, 2, 4, 6, 8]", must: [["yield", "Use yield."]],
         hint: "for i in range(n): if i % 2 == 0: yield i", solution: "def evens(n):\n    for i in range(n):\n        if i % 2 == 0:\n            yield i\n\nprint(list(evens(10)))\n" },
     ]},
+    { id: "lab_companion", title: "Weeks 1–6 Lab Companion", level: "Beginner", lessons: [
+      { id: "input_output", title: "Output, comments, and input",
+        simple: "print shows results; input pauses and asks the user for text. A comment starts with # and is ignored by Python.",
+        body: "Use <code>print()</code> to display values. Separate values with commas, choose a separator with <code>sep</code>, and keep output on one line with <code>end</code>. Use <code>input()</code> to ask a question; its result is always text. A backslash-n (\\n) starts a new line. Triple quotes make multi-line strings.\n\n<pre># Ask for a name and greet the user\nname = input(\"Your name: \")\nprint(\"Hello\", name)\nprint(\"A\", \"B\", sep=\"-\")\nprint(\"Ready\", end=\"!\\n\")</pre>",
+        walk: [["# Ask for a name and greet the user", "The # comment explains the code and does not run."], ["name = input(...) ", "Show a prompt, then save the typed text in name."], ["print(\"Hello\", name)", "Print both values with a space between them."], ["sep=\"-\"", "Choose the text inserted between print values."], ["end=\"!\\n\"", "Choose what print adds at the end; \\n moves to the next line."]],
+        mistakes: ["input() returns text: use int(input(...)) for a whole number and float(input(...)) for a decimal.", "Text needs quotes; a variable name does not.", "A comment uses #, not //.", "Use commas between print arguments; + joins text only when both sides are strings."],
+        task: "Ask for a person's name, then print <code>Hello, NAME!</code> with the entered name.", starter: "", expected: "Hello, Ali!", hint: "name = input(\"Name: \") then print(f\"Hello, {name}!\")", solution: "name = input(\"Name: \")\nprint(f\"Hello, {name}!\")\n", must: [["input\\s*\\(", "Ask for input using input()."]] },
+      { id: "variables_math", title: "Variables, types, and arithmetic",
+        simple: "A variable is a reusable name for a value. Python can store whole numbers, decimals, text, and true-or-false values.",
+        body: "Use <code>=</code> to assign a value. Variable names may contain letters, digits, and underscores, but cannot start with a digit or be a Python keyword. Check a value with <code>type()</code>. Arithmetic includes <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, floor division <code>//</code>, remainder <code>%</code>, and power <code>**</code>. Parentheses make the order clear.\n\n<pre>length = 12\nwidth = 5\narea = length * width\nprint(\"Area:\", area)\nprint(17 // 5, 17 % 5)\nprint(2 ** 3 ** 2)\nprint(type(area))</pre>",
+        walk: [["length = 12", "Store 12 under the name length."], ["area = length * width", "Multiply the two values and save the result."], ["17 // 5, 17 % 5", "Floor division gives 3; remainder gives 2."], ["2 ** 3 ** 2", "Exponentiation groups from the right: 2 ** (3 ** 2)."], ["type(area)", "Report the kind of value stored in area."]],
+        mistakes: ["= assigns a value; == compares two values.", "7 / 2 is 3.5; use // when you need floor division.", "% gives the remainder and is useful for checking even numbers: n % 2 == 0.", "Python distinguishes uppercase and lowercase names."],
+        task: "Read a rectangle's length and width as whole numbers, then print its perimeter using <code>2 * (length + width)</code>.", starter: "", expected: "34", hint: "Convert each input with int(), then apply the formula.", solution: "length = int(input(\"Length: \"))\nwidth = int(input(\"Width: \"))\nprint(2 * (length + width))\n", must: [["int\\s*\\(\\s*input", "Convert the two inputs to integers."]] },
+      { id: "strings_format", title: "Strings and formatting",
+        simple: "A string is text. You can combine strings, change their case, count characters, replace text, and format values for display.",
+        body: "Put text in single or double quotes. Use <code>\\n</code> for a new line. Strings support <code>len()</code>, <code>.lower()</code>, <code>.upper()</code>, <code>.replace(old, new)</code>, and slicing such as <code>word[::-1]</code>. An f-string starts with <code>f</code> and places values inside braces.\n\n<pre>name = \"Bindhya\"\nprint(f\"My name is {name} and I am {40} years old.\")\nprint(\"Hello\\nWorld\")\nprint(\"Hello, World!\".replace(\"World\", \"Python\"))\nprint(len(name), name.lower())</pre>",
+        walk: [["f\"...{name}...\"", "Insert the value of name into the text."], ["\\n", "Add a line break inside a string."], [".replace(...) ", "Return a new string with matching text replaced."], ["len(name)", "Count the characters in the string."]],
+        mistakes: ["Without the f prefix, braces are printed literally.", "Strings cannot be changed in place; methods return a new string.", "Use == for comparison, not =.", "Index positions start at zero."],
+        task: "Read a word and print it in lowercase, then print its length.", starter: "", expected: "python\n6", hint: "Use word.lower() and len(word).", solution: "word = input(\"Enter a word: \" )\nprint(word.lower())\nprint(len(word))\n" },
+      { id: "conditions", title: "Comparisons and if / elif / else",
+        simple: "Conditions let a program choose what to do. Python checks each condition in order and runs the first matching indented block.",
+        body: "Comparison operators include <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, and <code>&gt;=</code>. Start a branch with <code>if</code>, add alternatives with <code>elif</code>, and finish with <code>else</code>. Every header ends with a colon, and its body is indented.\n\n<pre>marks = int(input(\"Marks: \"))\nif marks < 0 or marks > 100:\n    print(\"Invalid marks\")\nelif marks >= 90:\n    print(\"Grade A\")\nelif marks >= 75:\n    print(\"Grade B\")\nelse:\n    print(\"Keep practising\")</pre>",
+        walk: [["if marks < 0 or marks > 100:", "Reject a value outside the allowed range."], ["elif marks >= 90:", "Check this only if the earlier condition was false."], ["else:", "Handle every remaining case."], ["Indentation", "Indented statements belong to the branch above them."]],
+        mistakes: ["Do not use then after if.", "Use == to test equality; a single = assigns.", "Put the most specific or highest threshold first in a grading scale.", "Indent every statement inside a branch consistently."],
+        task: "Read an integer and print <code>Positive</code>, <code>Negative</code>, or <code>Zero</code>.", starter: "", expected: "Negative", hint: "Check number > 0, then number < 0, then the remaining case.", solution: "number = int(input(\"Number: \"))\nif number > 0:\n    print(\"Positive\")\nelif number < 0:\n    print(\"Negative\")\nelse:\n    print(\"Zero\")\n", must: [["elif", "Use if / elif / else branches."]] },
+      { id: "logic", title: "Logical operators and nested conditions",
+        simple: "and, or, and not combine or reverse true-or-false conditions. Nested if statements make a second decision only after the first one is met.",
+        body: "<code>A and B</code> is true only if both are true. <code>A or B</code> is true if either is true. <code>not A</code> reverses A. Parentheses make complex conditions easier to read. A nested <code>if</code> is an if block placed inside another block.\n\n<pre>age = int(input(\"Age: \"))\nif age < 5 or age > 60:\n    print(\"Free ride\")\nelse:\n    print(\"Fare required\")\n\nyear = int(input(\"Year: \"))\nif year % 400 == 0:\n    print(\"Leap year\")\nelif year % 100 == 0:\n    print(\"Not a leap year\")\nelif year % 4 == 0:\n    print(\"Leap year\")\nelse:\n    print(\"Not a leap year\")</pre>",
+        walk: [["age < 5 or age > 60", "Free fare applies when either age condition is true."], ["year % 400 == 0", "Divisibility means the remainder is zero."], ["elif year % 100 == 0", "A century year is not a leap year unless divisible by 400."], ["else", "All other years use the divisible-by-4 rule."]],
+        mistakes: ["Write and/or/not as words, not symbols like &&.", "Use parentheses when a combined condition could be unclear.", "Check leap-year divisibility by 400 before 100 and 4.", "A nested block needs another indentation level."],
+        task: "Read an integer. Print <code>Divisible by 5 and 7</code> only when it is divisible by both; otherwise print <code>Not divisible by both</code>.", starter: "", expected: "Divisible by 5 and 7", hint: "Use number % 5 == 0 and number % 7 == 0 joined with and.", solution: "number = int(input(\"Number: \"))\nif number % 5 == 0 and number % 7 == 0:\n    print(\"Divisible by 5 and 7\")\nelse:\n    print(\"Not divisible by both\")\n", must: [["\\band\\b", "Require both divisibility checks using and."]] },
+      { id: "for_loops", title: "for loops, range, and counters",
+        simple: "A for loop repeats once for each value in a sequence. range() makes a sequence of integers and is useful when you know how many times to repeat.",
+        body: "<code>range(stop)</code> starts at zero and stops before stop. <code>range(start, stop)</code> starts where you choose. Keep a running total in an accumulator and count matching values in a counter.\n\n<pre>total = 0\nfor number in range(1, 6):\n    total += number\n    print(number, end=\" \" )\nprint()\nprint(\"Sum:\", total)</pre>",
+        walk: [["range(1, 6)", "Produces 1, 2, 3, 4, and 5; the stop value is excluded."], ["total = 0", "Start the accumulator at zero."], ["total += number", "Add the current value to the running sum."], ["end=\" \"", "Keep each printed value on the same line with a space after it."]],
+        mistakes: ["range(1, 5) stops at 4, not 5.", "Reset an accumulator before the loop, not during each repetition.", "Update the counter or total inside the loop.", "Indent all repeated statements under the for line."],
+        task: "Use a for loop to print the sum of the first five natural numbers (1 through 5).", starter: "", expected: "15", hint: "Start total at 0 and add each number from range(1, 6).", solution: "total = 0\nfor number in range(1, 6):\n    total += number\nprint(total)\n", must: [["for\\s", "Use a for loop."]] },
+      { id: "while_loops", title: "while loops, break, and continue",
+        simple: "Think of collecting shopping prices until the user says they are done. while repeats the question until the program reaches its stop condition. Something must change so the loop can finish.",
+        body: "<b>How while works</b>: Python checks the condition before every round. If it is true, Python runs the indented lines and checks again. When it becomes false, Python leaves the loop and continues below it.\n\n<b>Three steps for a safe loop</b>\n1. Set up values before the loop, such as a total and a counter.\n2. Read a new value or update a variable inside the loop.\n3. Make sure the update can end the loop, or use break for a clear stop signal.\n\nIn this example, zero means “finished.” A negative price is rejected and is not added to the total.\n\n<pre>total = 0\ncount = 0\nwhile True:\n    price = float(input(\"Price (0 to finish): \"))\n    if price == 0:\n        break\n    if price < 0:\n        print(\"Enter a positive price\")\n        continue\n    total += price\n    count += 1\nprint(\"Items:\", count, \"Total:\", total)</pre>\n\n<b>Trace these inputs: 3.5, then 4, then 0</b>\nRound 1: 3.5 is neither zero nor negative, so total becomes 3.5 and count becomes 1.\nRound 2: 4 is valid, so total becomes 7.5 and count becomes 2.\nRound 3: 0 is the stop signal. break exits, and the summary is printed.\n\n<code>break</code> leaves the loop immediately. <code>continue</code> skips the rest of this round and starts the next one.",
+        walk: [["total = 0; count = 0", "Set up the total and counter before repeating, so they do not reset each round."], ["while True:", "Repeat until a break statement is reached."], ["price = float(input(...))", "Read a new price every round. input returns text; float converts it so decimal prices work."], ["if price == 0: break", "Treat zero as the stop signal and leave the loop before counting it."], ["if price < 0: continue", "Reject a negative value and skip adding or counting it."], ["total += price; count += 1", "These lines run only for an accepted positive price."], ["print(...)", "After the loop ends, show the final summary once."]],
+        mistakes: ["If nothing changes in a while loop, it may never end. Update a value or include a clear stop condition.", "If input is outside the loop, the program keeps reusing the same value.", "Check the stop value before adding it to the total.", "Do not use continue before reading a new value, or the same invalid value may repeat forever.", "Keep the final summary outside the loop if it should appear once.", "float accepts decimal values; int converts to a whole number."],
+        task: "Read positive prices and add them. Stop when the user enters 0. Ignore negative prices, then print the count of valid prices and their total.", starter: "", expected: "Items: 2 Total: 7.5", hint: "Start total and count at zero. In the loop read a price, check zero, check negative, then add a valid price.", solution: "total = 0\ncount = 0\nwhile True:\n    price = float(input(\"Price (0 to finish): \"))\n    if price == 0:\n        break\n    if price < 0:\n        continue\n    total += price\n    count += 1\nprint(\"Items:\", count, \"Total:\", total)\n", must: [["while\\s", "Use a while loop."]] },
+      { id: "trace_debug", title: "Trace output and fix common errors",
+        simple: "To predict a program, follow each line in order and update variable values. To debug, first find the line Python reports, then check spelling, punctuation, and indentation.",
+        body: "A trace table records variable values after each statement. For a condition, write whether it is True or False and follow only the matching branch. Common errors include <code>SyntaxError</code> (invalid punctuation or structure), <code>NameError</code> (unknown name), <code>TypeError</code> (wrong type), and <code>IndentationError</code>.\n\n<pre>num = 10\nnum += 5\nnum -= 2\nprint(num)\n\nx = 8\ny = 12\nif x < y and y % x == 0:\n    print(\"Condition met\")\nelse:\n    print(\"Condition not met\")</pre>",
+        walk: [["num = 10", "num becomes 10."], ["num += 5", "Add 5: num becomes 15."], ["num -= 2", "Subtract 2: num becomes 13."], ["x < y and y % x == 0", "8 is less than 12, but 12 % 8 is 4, so the full condition is false."]],
+        mistakes: ["Read assignments in order; later assignments replace earlier values.", "Check indentation after if, elif, else, for, and while.", "Match every opening parenthesis and quote.", "Python names are case-sensitive: Ticket and ticket differ."],
+        task: "Predict and print the final value after starting at 10, adding 5, then subtracting 2.", starter: "num = 10\n", expected: "13", hint: "Use the augmented assignments += and -=.", solution: "num = 10\nnum += 5\nnum -= 2\nprint(num)\n", must: [["\\+=", "Add using +=."], ["-=", "Subtract using -=."]] },
+      { id: "lab_scenarios", title: "Putting the lab skills together",
+        simple: "A larger exercise combines input, validation, decisions, loops, totals, and counters. Build it in small steps and test ordinary and boundary values.",
+        body: "Scenario problems are easier when you split them into steps: read input, validate it, decide a category, update a total or counter, and show a clear result. For example, classify several marks and count passes. Test 0, 50, 100, and invalid values. Similar patterns apply to grade checks, temperature categories, BMI, shopping totals, and menu programs.\n\n<pre>passed = 0\ntotal = 0\nfor student in range(1, 4):\n    mark = int(input(\"Mark 0-100: \"))\n    if mark < 0 or mark > 100:\n        print(\"Invalid mark\")\n        continue\n    total += mark\n    if mark >= 50:\n        print(\"Pass\")\n        passed += 1\n    else:\n        print(\"Fail\")\nprint(\"Valid total:\", total)\nprint(\"Passed:\", passed)</pre>",
+        walk: [["for student in range(1, 4)", "Repeat once for each of three students."], ["if mark < 0 or mark > 100", "Reject marks outside the valid range."], ["continue", "Skip the rest of this round for an invalid mark."], ["total += mark", "Add a valid mark to the total."], ["passed += 1", "Count each student who earns at least 50."]],
+        mistakes: ["Validate before calculating an average or changing counters.", "Use >= 50 so a mark of exactly 50 passes.", "Initialize totals and counters before the loop.", "Try boundary and invalid inputs, not just one typical value."],
+        task: "Read a mark from 0 to 100. Print <code>Pass</code> for 50 or above, <code>Fail</code> otherwise, and <code>Invalid mark</code> outside the range.", starter: "", expected: "Pass", hint: "First check mark < 0 or mark > 100, then check mark >= 50.", solution: "mark = int(input(\"Mark: \"))\nif mark < 0 or mark > 100:\n    print(\"Invalid mark\")\nelif mark >= 50:\n    print(\"Pass\")\nelse:\n    print(\"Fail\")\n", must: [["\\bor\\b", "Reject marks below 0 or above 100."], ["elif", "Use a separate pass/fail decision."]] },
+    ]},
   ];
   HC.courses = COURSES;
   const EXAMPLE_OUTPUTS = {
@@ -137,6 +193,15 @@
     modules: "4.0",
     json: "1",
     gen: "[0, 1, 2]",
+    input_output: "Hello Ali\nA-B\nReady!",
+    variables_math: "Area: 60\n3 2\n512\n<class 'int'>",
+    strings_format: "My name is Bindhya and I am 40 years old.\nHello\nWorld\nHello, Python!\n7 bindhya",
+    conditions: "Grade B",
+    logic: "Free ride\nLeap year",
+    for_loops: "1 2 3 4 5 \nSum: 15",
+    while_loops: "Items: 2 Total: 7.5",
+    trace_debug: "13\nCondition not met",
+    lab_scenarios: "Pass\nFail\nInvalid mark",
   };
 
   // ---- helpers: translated content, safe HTML ----
@@ -185,7 +250,7 @@
       theme: "material-darker",
       readOnly: "nocursor",
       lineNumbers: true,
-      lineWrapping: false,
+      lineWrapping: true,
       viewportMargin: Infinity,
     });
     codeEditor.setSize("100%", "auto");
@@ -221,6 +286,7 @@
   function renderLesson() {
     const { course: c, lesson: l, index: i } = current, m = $(".cd-main", dlg);
     m.replaceChildren(); m.dir = pack()?.dir || "ltr";
+    m.classList.remove("cd-page-turn"); void m.offsetWidth; m.classList.add("cd-page-turn");
     m.append(mk("h2", "", `${text(c, null, "title")} · ${i + 1}. ${text(c, l, "title")}`));
     const simple = mk("div", "cd-simple"); simple.append(mk("b", "", TC("In simple words")), mk("p", "", text(c, l, "simple"))); m.append(simple);
     const body = mk("div", "cd-text"); body.innerHTML = fmt(text(c, l, "body"));
@@ -265,10 +331,17 @@
     const ex = mk("button", "cd-secondary", TC("Try the example")); ex.type = "button"; ex.onclick = tryExample;
     const go = mk("button", "cd-primary", TC("Start lesson in editor")); go.type = "button"; go.onclick = startLesson;
     act.append(ex, go); m.append(act);
+    const pageNav = mk("nav", "cd-page-nav");
+    const prev = mk("button", "cd-page-button", `‹ ${TC("Previous page")}`); prev.type = "button"; prev.disabled = i === 0;
+    prev.onclick = () => { if (i > 0) showLesson(c, i - 1); };
+    const pageMark = mk("span", "cd-page-mark", `${TC("Page")} ${i + 1} / ${c.lessons.length}`);
+    const next = mk("button", "cd-page-button", `${TC("Next page")} ›`); next.type = "button"; next.disabled = i >= c.lessons.length - 1;
+    next.onclick = () => { if (i < c.lessons.length - 1) showLesson(c, i + 1); };
+    pageNav.append(prev, pageMark, next); m.append(pageNav);
     bodyCodeBlocks.forEach(({ container, source }) => renderCodeEditor(container, source));
   }
 
-  function showLesson(c, i) { current = { course: c, lesson: c.lessons[i], index: i }; renderLesson(); renderNav(); }
+  function showLesson(c, i) { current = { course: c, lesson: c.lessons[i], index: i }; renderLesson(); renderNav(); $(".cd-main", dlg).scrollTop = 0; }
 
   function tryExample() {
     const { course, lesson } = current, name = `courses/${course.id}-${lesson.id}-example.py`;
@@ -579,7 +652,8 @@
   }
 
   // ---- activity bar button ----
-  const btn = mk("button", "activity-button", "🎓");
+  const btn = mk("button", "activity-button");
+  btn.innerHTML = '<svg class="courses-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2.5 8 9.5-5 9.5 5-9.5 5-9.5-5Z"/><path d="M6.5 10.1v5.1c3.4 2.8 7.6 2.8 11 0v-5.1M21.5 8v6"/><circle cx="21.5" cy="15.5" r="1"/></svg>';
   btn.type = "button"; btn.id = "coursesBtn"; btn.title = "Python Courses"; btn.setAttribute("aria-label", "Python Courses");
   document.getElementById("extensionsBtn").after(btn);
   btn.onclick = () => { renderNav(); if (!current) showLesson(COURSES[0], 0); else renderLesson(); dlg.showModal(); };

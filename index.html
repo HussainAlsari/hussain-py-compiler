@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
   <link rel="stylesheet" href="./style.css?v=about-modal-2">
-  <link rel="stylesheet" href="./courses.css?v=course-removed-1">
+  <link rel="stylesheet" href="./courses.css?v=book-pages-ar-5">
   <link rel="stylesheet" href="./i18n.css">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="apple-touch-icon" href="./favicon.svg">
@@ -44,9 +44,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js" defer></script>
     <script src="./i18n.js" defer></script>
-  <script src="./ar.js?v=run-output-instructions-2" defer></script>
+  <script src="./ar.js?v=weeks-1-6-course-1" defer></script>
   <script src="./app.js?v=about-modal-2" defer></script>
-  <script src="./courses.js?v=run-output-instructions-2" defer></script>
+  <script src="./courses.js?v=course-icon-svg-1" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -258,7 +258,7 @@
   const dialog = document.createElement('dialog');
   dialog.className = 'welcome-dialog';
   dialog.setAttribute('aria-labelledby','welcome-title');
-  dialog.innerHTML = `<div class="welcome-layout"><img class="welcome-photo" src="./hussain-compiler-welcome.jpeg" alt="Hussain Compiler creator portrait"><div class="welcome-copy"><span>WELCOME TO</span><h2 id="welcome-title">Hussain Compiler</h2><p>Built by Hussain to make writing and running Python simple, right in your browser.</p><p>If you enjoy it, please give the project a star on GitHub. It means a lot!</p><div class="welcome-actions"><a class="welcome-primary" href="https://github.com/HussainAlsari/hussain-py-compiler" target="_blank" rel="noopener">View on GitHub</a><a href="https://github.com/HussainAlsari/hussain-py-compiler/stargazers" target="_blank" rel="noopener">★ Star the repo</a><a href="https://buymeacoffee.com/xpxxxu" target="_blank" rel="noopener">Buy Me a Coffee</a><button type="button" data-dismiss>Start Coding</button></div></div></div>`;
+  dialog.innerHTML = `<div class="welcome-layout"><img class="welcome-photo" src="./hussain-compiler-welcome-outline.svg" alt="Hussain Compiler creator portrait drawn as vector line art"><div class="welcome-copy"><span>WELCOME TO</span><h2 id="welcome-title">Hussain Compiler</h2><p>Built by Hussain to make writing and running Python simple, right in your browser.</p><p>If you enjoy it, please give the project a star on GitHub. It means a lot!</p><div class="welcome-actions"><a class="welcome-primary" href="https://github.com/HussainAlsari/hussain-py-compiler" target="_blank" rel="noopener">View on GitHub</a><a href="https://github.com/HussainAlsari/hussain-py-compiler/stargazers" target="_blank" rel="noopener">★ Star the repo</a><button type="button" data-dismiss>Start Coding</button></div></div></div>`;
   document.body.appendChild(dialog);
   dialog.addEventListener('click', event => { if(event.target === dialog || event.target.closest('[data-dismiss]')) dialog.close(); });
   dialog.showModal();
@@ -274,9 +274,8 @@
 <script>
 (() => {
  const d=document.querySelector('.welcome-dialog'); if(!d)return;
- const css=document.createElement('style'); css.textContent='.welcome-dialog[open]{display:flex;flex-direction:column;width:min(760px,calc(100vw - 30px));max-height:92vh;max-height:92dvh;padding:0;overflow:auto;animation:welcome-pop .4s cubic-bezier(.2,.9,.3,1.3) both}.welcome-dialog::backdrop{background:rgb(0 0 0 / 58%);backdrop-filter:blur(2px)}.welcome-photo{width:100%;max-height:min(42vh,380px);object-fit:cover;object-position:left center}.welcome-copy{padding:24px 30px}.welcome-close{position:absolute;right:12px;top:12px;z-index:2;width:36px;height:36px;border:1px solid #777;border-radius:50%;background:#181818d9;color:white;font-size:24px;cursor:pointer}.coffee-image-link{display:inline-flex;align-items:center}.coffee-image{display:block;height:38px;width:auto}.welcome-start{min-width:130px;min-height:40px;background:#0e639c;border-color:#0e639c;color:#fff;font-weight:700;letter-spacing:.35px}.welcome-start:hover{background:#1177bb}'; document.head.append(css);
+ const css=document.createElement('style'); css.textContent='.welcome-dialog[open]{display:flex;flex-direction:column;width:min(760px,calc(100vw - 30px));max-height:92vh;max-height:92dvh;padding:0;overflow:auto;animation:welcome-pop .4s cubic-bezier(.2,.9,.3,1.3) both}.welcome-dialog::backdrop{background:rgb(0 0 0 / 58%);backdrop-filter:blur(2px)}.welcome-photo{width:100%;max-height:min(42vh,380px);object-fit:cover;object-position:left center}.welcome-copy{padding:24px 30px}.welcome-close{position:absolute;right:12px;top:12px;z-index:2;width:36px;height:36px;border:1px solid #777;border-radius:50%;background:#181818d9;color:white;font-size:24px;cursor:pointer}.welcome-start{min-width:130px;min-height:40px;background:#0e639c;border-color:#0e639c;color:#fff;font-weight:700;letter-spacing:.35px}.welcome-start:hover{background:#1177bb}'; document.head.append(css);
  const close=document.createElement('button'); close.className='welcome-close'; close.type='button'; close.setAttribute('aria-label','Close welcome message'); close.textContent='×'; d.prepend(close); close.addEventListener('click',()=>d.close());
- const coffee=d.querySelector('a[href*="buymeacoffee.com"]'); if(coffee){coffee.className='coffee-image-link';coffee.setAttribute('aria-label','Buy Me a Coffee');coffee.innerHTML='<img class="coffee-image" src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee">';}
  const star=d.querySelector('a[href*="stargazers"]'); if(star){star.href='https://github.com/HussainAlsari/hussain-py-compiler';star.textContent='★ Star the repo';}
  const start=d.querySelector('button[data-dismiss]'); if(start){start.textContent='START CODING';start.classList.add('welcome-start');start.addEventListener('click',()=>d.close());}
  if(d.open)d.close(); window.setTimeout(()=>d.showModal(),800);
