@@ -43,8 +43,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js" defer></script>
     <script src="./i18n.js" defer></script>
   <script src="./ar.js?v=weeks-1-6-course-1" defer></script>
-  <script src="./app.js?v=no-package-installer-1" defer></script>
-  <script src="./courses.js?v=course-icon-svg-2" defer></script>
+  <script src="./app.js?v=about-modal-2" defer></script>
+  <script src="./courses.js?v=course-icon-svg-1" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -136,6 +136,7 @@
         <button class="activity-button active" id="explorerBtn" type="button" title="Explorer" aria-label="Explorer">▤</button>
         <button class="activity-button" id="searchBtn" type="button" title="Search in file" aria-label="Search in file">⌕</button>
         <button class="activity-button" id="runActivityBtn" type="button" title="Run Python" aria-label="Run Python">▷</button>
+        <button class="activity-button" id="extensionsBtn" type="button" title="Python packages" aria-label="Python packages">▦</button>
         <span class="activity-spacer"></span>
         <button class="activity-button account-button" id="aboutBtn" type="button" title="About" aria-label="About">●</button>
       </nav>
@@ -151,6 +152,17 @@
         </div>
         <div class="file-list" id="fileList" aria-label="Workspace files"></div>
         <div class="sidebar-spacer"></div>
+        <section class="package-box" aria-labelledby="packageTitle">
+          <div class="package-heading">
+            <span class="package-icon">▦</span>
+            <div><strong id="packageTitle">PYTHON PACKAGES</strong><small>Install browser-compatible packages</small></div>
+          </div>
+          <form id="packageForm" class="package-form">
+            <input id="packageName" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. requests" aria-label="Package name">
+            <button id="installBtn" type="submit">Install</button>
+          </form>
+          <p class="package-hint">Packages that require native system extensions may not run in WebAssembly.</p>
+        </section>
         <div class="storage-note"><span class="storage-icon">●</span> Stored in this browser</div>
       </aside>
 
@@ -244,13 +256,13 @@
       <div class="guide-grid">
         <article class="guide-card"><h3>How to run your first program</h3><ol><li>Keep the starter example or enter <code>print("Hello, Python!")</code> in the editor.</li><li>Select <strong>Run Python</strong> or press <kbd>Ctrl</kbd> + <kbd>Enter</kbd>.</li><li>Read the result in the terminal below the editor. Programs that call <code>input()</code> can receive their answers there.</li></ol><p>Your files are kept in this browser. Use <strong>Download</strong> to save a copy on your device.</p></article>
         <article class="guide-card"><h3>Learn Python step by step</h3><p>The built-in courses pair short explanations with runnable examples and exercises. Start with output, variables, strings, and conditions, then practice loops, lists, dictionaries, functions, and debugging. Lessons include worked examples, common mistakes, hints, and solutions.</p><p>Open the Courses activity in the editor to choose a lesson. Course progress is saved locally in your browser.</p></article>
-        <article class="guide-card"><h3>What runs in the browser</h3><p>The editor uses Pyodide, which runs Python compiled to WebAssembly. The Python standard library is available; this editor does not install third-party packages. The runtime and editor libraries are downloaded from their public CDNs, so an internet connection is needed to load them.</p><p>This tool does not create native executables or replace a full desktop Python installation.</p></article>
+        <article class="guide-card"><h3>What runs in the browser</h3><p>The editor uses Pyodide, which runs Python compiled to WebAssembly. Standard Python code and packages built for Pyodide can work; packages that require native operating-system extensions may not. The runtime and editor libraries are downloaded from their public CDNs, so an internet connection is needed to load them.</p><p>This tool does not create native executables or replace a full desktop Python installation.</p></article>
         <article class="guide-card"><h3>Useful Python examples</h3><p>Try a calculation such as <code>price = 12</code>, <code>quantity = 3</code>, then <code>print(price * quantity)</code>. For a decision, use <code>if score &gt;= 50:</code> followed by an indented <code>print("Pass")</code>. For repeated work, a <code>for number in range(1, 6):</code> loop visits 1 through 5.</p><p>Use the lessons to explore each idea with a complete example and guided practice.</p></article>
       </div>
       <section class="guide-faq" aria-labelledby="faq-title"><h3 id="faq-title">Common questions</h3>
         <details><summary>Do I need to install Python?</summary><p>No. Python runs through WebAssembly in a modern browser. The first load downloads the runtime, so it needs an internet connection.</p></details>
         <details><summary>Where are my files and course progress stored?</summary><p>They are stored locally in this browser. They are not synchronized to another device or an online account. Clearing this browser's site data may remove them.</p></details>
-        <details><summary>Can I install Python packages?</summary><p>No. This editor does not include a package installer, so programs that require third-party packages may not run.</p></details>
+        <details><summary>Can I install any Python package?</summary><p>No. Packages must support Pyodide and WebAssembly. Native extensions and software that depends on a local operating system may not work.</p></details>
         <details><summary>Is this a compiler that creates executable files?</summary><p>No. It runs Python programs in the browser and lets you download your source files. It does not produce native executable binaries.</p></details>
       </section>
       <nav class="site-links" aria-label="Site information"><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="contact.html">Contact</a></nav>
