@@ -483,7 +483,8 @@
     panel.dir = pack()?.dir || "ltr";
     panel.replaceChildren(panelHead, resizeHandle);
     const sec = (label, cls) => { const d = mk("div", "tp-section" + (cls ? " " + cls : "")); d.append(mk("b", "", label)); panel.append(d); return d; };
-    const titleDiv = mk("div", "tp-title"); titleDiv.innerHTML = `<b>${text(c, null, "title")}</b> · ${text(c, l, "title")}`;
+    const titleDiv = mk("div", "tp-title");
+    titleDiv.append(mk("b", "", text(c, null, "title")), document.createTextNode(" · "), document.createTextNode(text(c, l, "title")));
     panel.appendChild(titleDiv);
     const openBtn = mk("button", "tp-open"); openBtn.type = "button"; openBtn.textContent = "Open Lesson";
     openBtn.addEventListener("click", (e) => { e.stopPropagation(); showLesson(c, current.index); dlg.showModal(); });

@@ -2,14 +2,13 @@ const STORAGE_KEY = "hussain-compiler-workspace-v1";
 const SETTINGS_KEY = "hussain-compiler-settings-v1";
 const DEFAULT_SETTINGS = { autoCloseBrackets: true, fontSize: 13, autoClearTerminal: true, showErrorReaction: false };
 const SAMPLE = `# Welcome to Hussain Compiler\n# Write Python here, then click Run Python\n\ndef greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("Python"))\n`;
-const PACKAGE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*(?:\[[A-Za-z0-9_,.-]+\])?(?:(?:===|==|~=|!=|<=|>=|<|>)\s*[A-Za-z0-9.*+_-]+(?:,(?:===|==|~=|!=|<=|>=|<|>)\s*[A-Za-z0-9.*+_-]+)*)?$/;
 
 const elements = Object.fromEntries([
   "fileList", "newFileBtn", "openFilesBtn", "filePicker", "saveBtn", "downloadBtn",
   "runBtn", "stopBtn", "deleteFileBtn", "activeFileName", "dirtyMark", "saveState",
   "runtimeStatus", "statusDot", "pythonVersion", "cursorPosition", "console", "runState",
-  "clearOutputBtn", "downloadOutputImageBtn", "packageForm", "packageName", "installBtn", "toast", "workspace",
-  "mainPanel", "explorerBtn", "searchBtn", "runActivityBtn", "extensionsBtn", "aboutBtn", "aboutTopBtn",
+  "clearOutputBtn", "downloadOutputImageBtn", "toast", "workspace",
+  "mainPanel", "explorerBtn", "searchBtn", "runActivityBtn", "aboutBtn", "aboutTopBtn",
   "rootNewFileBtn", "rootOpenFilesBtn", "windowTitle", "breadcrumbFileName", "toggleWordWrapItem",
   "settingsDialog", "settingsCloseBtn", "settingsDoneBtn", "aboutDialog", "aboutCloseBtn", "aboutDoneBtn", "autoCloseBracketsSetting", "autoClearTerminalSetting", "showErrorReactionSetting", "fontSizeSetting", "fontSizeValue",
 ].map((id) => [id, document.getElementById(id)]));
@@ -537,7 +536,7 @@ function ensureRuntime() {
   appendOutput("Preparing Python in the background. The first launch downloads the runtime; your browser can reuse cached files later.", "system");
   runtimePromise = new Promise((resolve, reject) => {
     rejectRuntimePromise = reject;
-    worker = new Worker("./py-worker.js?v=fresh-run-namespace", { type: "module" });
+    worker = new Worker("./py-worker.js?v=package-allowlist-1", { type: "module" });
     worker.addEventListener("message", (event) => {
       const message = event.data || {};
       if (message.type === "ready") {
@@ -564,8 +563,6 @@ function ensureRuntime() {
         setRuntimeStatus("Preparing Python…", "busy");
       } else if (message.type === "execution-start") {
         armExecutionTimer(message.id);
-      } else if (message.type === "installed") {
-        appendOutput(`${message.package} installed for this browser session.`, "system");
       } else if (message.type === "input-request") {
         clearExecutionTimer();
         beginTerminalInput(message);
@@ -581,11 +578,8 @@ function ensureRuntime() {
         elements.clearOutputBtn.disabled = false;
         busy = false;
         elements.runBtn.disabled = false;
-        elements.installBtn.disabled = false;
         elements.stopBtn.disabled = true;
-        elements.runState.textContent = message.operation === "install"
-          ? (message.ok ? "Installation complete" : "Installation failed")
-          : (message.ok ? "Finished" : "Finished with errors");
+        elements.runState.textContent = message.ok ? "Finished" : "Finished with errors";
         if (message.ok && message.id === operationId) setRuntimeStatus(`Python ${elements.pythonVersion.textContent} ready`, "ready");
       }
     });
@@ -612,7 +606,6 @@ function finishOperation() {
   elements.clearOutputBtn.disabled = false;
   busy = false;
   elements.runBtn.disabled = false;
-  elements.installBtn.disabled = false;
   elements.stopBtn.disabled = true;
 }
 
@@ -650,7 +643,6 @@ async function runCode() {
   busy = true;
   const runId = ++operationId;
   elements.runBtn.disabled = true;
-  elements.installBtn.disabled = true;
   elements.stopBtn.disabled = false;
   elements.runState.textContent = "Running…";
   if (settings.autoClearTerminal) elements.console.replaceChildren();
@@ -665,34 +657,6 @@ async function runCode() {
   } catch (error) {
     appendOutput(String(error?.message || error), "error");
     elements.runState.textContent = "Could not run";
-    finishOperation();
-  }
-}
-
-async function installPackage(event) {
-  event.preventDefault();
-  if (busy) return;
-  const packageName = elements.packageName.value.trim();
-  if (!PACKAGE_PATTERN.test(packageName)) {
-    showToast("Enter a package name such as requests or package==1.2.3.", true);
-    return;
-  }
-  busy = true;
-  operationId += 1;
-  elements.runBtn.disabled = true;
-  elements.installBtn.disabled = true;
-  elements.stopBtn.disabled = false;
-  elements.runState.textContent = `Installing ${packageName}…`;
-  appendOutput(`＋ Installing ${packageName}`, "system");
-  try {
-    const activeWorker = await ensureRuntime();
-    if (!busy || activeWorker !== worker) return;
-    setRuntimeStatus("Installing package…", "busy");
-    activeWorker.postMessage({ type: "install", id: operationId, package: packageName });
-    elements.packageName.value = "";
-  } catch (error) {
-    appendOutput(String(error?.message || error), "error");
-    elements.runState.textContent = "Could not install";
     finishOperation();
   }
 }
@@ -996,8 +960,7 @@ function updateCursor() {
 function initEditor() {
   if (!window.CodeMirror) {
     elements.runBtn.disabled = true;
-    elements.installBtn.disabled = true;
-    showToast("Could not load the code editor. Check your internet connection and reload the page.", true);
+      showToast("Could not load the code editor. Check your internet connection and reload the page.", true);
     return;
   }
   editor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -1065,12 +1028,8 @@ elements.stopBtn.addEventListener("click", stopExecution);
 elements.deleteFileBtn.addEventListener("click", deleteCurrentFile);
 elements.clearOutputBtn.addEventListener("click", () => elements.console.replaceChildren());
 elements.downloadOutputImageBtn.addEventListener("click", downloadInputOutputImage);
-elements.packageForm.addEventListener("submit", installPackage);
 elements.console.addEventListener("keydown", submitTerminalInput);
 elements.console.addEventListener("click", handleTerminalClick);
-elements.packageName.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") installPackage(event);
-});
 if (window.matchMedia("(max-width: 560px), (max-width: 900px) and (max-height: 520px)").matches) {
   elements.workspace.classList.add("sidebar-collapsed");
   elements.explorerBtn.classList.remove("active");
@@ -1084,7 +1043,6 @@ elements.workspace.addEventListener("click", (event) => {
 elements.explorerBtn.addEventListener("click", toggleExplorer);
 elements.searchBtn.addEventListener("click", findInEditor);
 elements.runActivityBtn.addEventListener("click", runCode);
-elements.extensionsBtn.addEventListener("click", () => document.querySelector(".package-box").scrollIntoView({ block: "nearest" }));
 elements.aboutBtn.addEventListener("click", showAbout);
 elements.aboutTopBtn.addEventListener("click", showAbout);
 window.addEventListener("beforeunload", saveWorkspace);

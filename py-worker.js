@@ -179,9 +179,6 @@ async function handle(message) {
   if (message.type === "run") {
     const root = await syncFiles(pyodide, message.files);
     const filename = safeRelativePath(message.filename) || "main.py";
-    await pyodide.loadPackagesFromImports(message.code, {
-      messageCallback: (text) => emit("progress", { text: String(text) }),
-    });
     pyodide.globals.set("__hussain_source", message.code);
     pyodide.globals.set("__hussain_filename", `${root}/${filename}`);
     pyodide.runPython(INPUT_TRANSFORMER);
@@ -198,16 +195,7 @@ async function handle(message) {
       }
     }
     emit("done", { id: message.id, operation: "run", ok: true });
-  } else if (message.type === "install") {
-    await pyodide.loadPackage("micropip");
-    const micropip = pyodide.pyimport("micropip");
-    try {
-      await micropip.install(message.package);
-    } finally {
-      micropip.destroy();
-    }
-    emit("installed", { id: message.id, package: message.package });
-    emit("done", { id: message.id, operation: "install", ok: true });
+
   }
 }
 

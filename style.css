@@ -158,19 +158,6 @@ button { color: inherit; }
 }
 .file-row.drag-over { background: #389fbd; opacity: 0.8; }
 .sidebar-spacer { flex: 1; min-height: 10px; }
-.package-box { margin: 0; padding: 12px 12px 13px; border-top: 1px solid #2a2a2a; background: #181818; }
-.package-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
-.package-icon { display: grid; width: 22px; height: 22px; place-items: center; border-radius: 4px; background: #252526; color: #80c7ff; font-size: 14px; }
-.package-heading div { display: grid; gap: 2px; }
-.package-heading strong { color: #c8c8c8; font-size: 10px; letter-spacing: .35px; }
-.package-heading small, .package-hint { color: #858585; font-size: 10px; line-height: 1.45; }
-.package-form { display: flex; gap: 5px; }
-.package-form input { width: 0; min-width: 0; height: 28px; flex: 1; padding: 0 7px; border: 1px solid #3c3c3c; border-radius: 2px; outline: 0; background: #1f1f1f; color: #ddd; font: 11px var(--mono); }
-.package-form input:focus { border-color: var(--accent); }
-.package-form button { height: 28px; padding: 0 9px; border: 0; border-radius: 2px; background: #0e639c; color: white; cursor: pointer; font-size: 11px; }
-.package-form button:hover { background: #1177bb; }
-.package-form button:disabled { opacity: .5; cursor: wait; }
-.package-hint { margin: 8px 0 0; }
 .storage-note { display: flex; align-items: center; gap: 7px; padding: 10px 12px; border-top: 1px solid #2a2a2a; color: #858585; font-size: 10px; }
 .storage-icon { color: #89d185; font-size: 8px; }
 
@@ -370,3 +357,4 @@ noscript { display: block; padding: 12px 20px; background: #252526; color: #f0d1
   #mainPanel.panel-hidden { grid-template-rows: 32px minmax(0, 1fr) 0 0 !important; }
   .editor-tabbar { height: 30px; flex-basis: 30px; }
 }
+
