@@ -656,6 +656,10 @@
   const btn = mk("button", "activity-button");
   btn.innerHTML = '<svg class="courses-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2.5 8 9.5-5 9.5 5-9.5 5-9.5-5Z"/><path d="M6.5 10.1v5.1c3.4 2.8 7.6 2.8 11 0v-5.1M21.5 8v6"/><circle cx="21.5" cy="15.5" r="1"/></svg>';
   btn.type = "button"; btn.id = "coursesBtn"; btn.title = "Python Courses"; btn.setAttribute("aria-label", "Python Courses");
-  document.getElementById("extensionsBtn").after(btn);
+  // Keep the course button in the activity bar. The extensions/package button
+  // is not part of this editor, so anchor beside the existing Run button.
+  const activityAnchor = document.getElementById("runActivityBtn") || document.getElementById("explorerBtn");
+  if (activityAnchor) activityAnchor.after(btn);
+  else document.querySelector(".activity-bar")?.prepend(btn);
   btn.onclick = () => { renderNav(); if (!current) showLesson(COURSES[0], 0); else renderLesson(); dlg.showModal(); };
 })();
