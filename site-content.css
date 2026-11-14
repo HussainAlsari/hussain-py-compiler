@@ -1,0 +1,39 @@
+/* Public information pages and crawlable product guide */
+.site-content { background:#151515; border-top:1px solid #303031; color:#d6d6d6; }
+.site-content-inner { width:min(1080px,calc(100% - 40px)); margin:0 auto; padding:64px 0 48px; }
+.guide-intro { max-width:760px; margin-bottom:34px; }
+.guide-kicker,.info-eyebrow { color:#75beff; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+.guide-intro h2 { margin:10px 0 14px; color:#fff; font-size:clamp(28px,4vw,42px); line-height:1.12; }
+.guide-intro p,.guide-card p,.guide-card li,.guide-faq p,.info-copy p,.info-copy li { color:#c1c1c1; font-size:15px; line-height:1.75; }
+.guide-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.guide-card { padding:22px; border:1px solid #343434; border-radius:10px; background:#1d1d1d; }
+.guide-card h3,.guide-faq h3 { margin:0 0 12px; color:#fff; font-size:20px; }
+.guide-card ol { padding-left:22px; }
+.guide-card code,.info-copy code { padding:2px 5px; border-radius:4px; background:#292929; color:#d7eaff; font: .9em var(--mono); }
+.guide-card kbd { padding:2px 5px; border:1px solid #555; border-radius:4px; color:#eee; font-size:12px; }
+.guide-faq { max-width:850px; margin:42px 0 32px; }
+.guide-faq details { border-bottom:1px solid #393939; }
+.guide-faq summary { padding:16px 0; color:#eee; cursor:pointer; font-size:16px; font-weight:600; }
+.guide-faq details p { margin:0 0 16px; }
+.site-links,.info-nav { display:flex; flex-wrap:wrap; gap:18px; padding-top:20px; border-top:1px solid #393939; }
+.site-links a,.info-nav a,.site-footer a { color:#86c5ff; text-decoration:none; }
+.site-links a:hover,.info-nav a:hover,.site-footer a:hover { text-decoration:underline; }
+.site-footer { display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; padding:20px max(20px,calc((100% - 1080px)/2)); border-top:1px solid #303031; background:#181818; color:#999; font-size:13px; }
+.info-page { min-height:100vh; background:#151515; color:#d6d6d6; }
+.info-header { padding:20px max(20px,calc((100% - 900px)/2)); border-bottom:1px solid #303031; background:#181818; }
+.info-brand { color:#fff; font-size:15px; font-weight:700; text-decoration:none; }
+.info-copy { width:min(900px,calc(100% - 40px)); margin:0 auto; padding:56px 0 72px; }
+.info-copy h1 { margin:8px 0 10px; color:#fff; font-size:clamp(32px,5vw,48px); line-height:1.15; }
+.info-copy h2 { margin:34px 0 8px; color:#fff; font-size:22px; }
+.info-copy h3 { margin:25px 0 8px; color:#eee; font-size:17px; }
+.info-copy p,.info-copy li { max-width:76ch; }
+.info-copy a { color:#86c5ff; }
+.updated-date { margin:0 0 30px; color:#999 !important; font-size:13px !important; }
+@media(max-width:700px) { .guide-grid { grid-template-columns:1fr; } .site-content-inner { padding-top:42px; } .info-copy { padding-top:38px; } }
+
+.contact-email { display:flex; align-items:center; gap:14px; width:fit-content; margin:20px 0 30px; padding:16px 20px; border:1px solid #343434; border-radius:10px; background:#1d1d1d; }
+.contact-email img { flex:0 0 38px; }
+.contact-email div { display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
+.contact-email .contact-label { display:block; color:#999; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+.contact-email a { display:block; color:#86c5ff; font-size:17px; font-weight:600; text-decoration:none; }
+.contact-email a:hover { text-decoration:underline; }

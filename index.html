@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#181818">
-  <meta name="description" content="A simple, browser-based Python IDE by Hussain. Write and run Python without installing anything.">
+  <meta name="description" content="Write, run, and learn Python in your browser with Hussain Compiler. Explore guided lessons, runnable examples, and a free WebAssembly Python editor.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Hussain Compiler">
   <meta property="og:title" content="Hussain Compiler — Online Python IDE">
@@ -33,6 +34,7 @@
   <link rel="stylesheet" href="./style.css?v=about-modal-2">
   <link rel="stylesheet" href="./courses.css?v=book-pages-ar-5">
   <link rel="stylesheet" href="./i18n.css">
+  <link rel="stylesheet" href="./site-content.css">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="apple-touch-icon" href="./favicon.svg">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js" defer></script>
@@ -41,8 +43,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js" defer></script>
     <script src="./i18n.js" defer></script>
   <script src="./ar.js?v=weeks-1-6-course-1" defer></script>
-  <script src="./app.js?v=about-modal-2" defer></script>
-  <script src="./courses.js?v=course-icon-svg-1" defer></script>
+  <script src="./app.js?v=no-package-installer-1" defer></script>
+  <script src="./courses.js?v=course-icon-svg-2" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -134,7 +136,6 @@
         <button class="activity-button active" id="explorerBtn" type="button" title="Explorer" aria-label="Explorer">▤</button>
         <button class="activity-button" id="searchBtn" type="button" title="Search in file" aria-label="Search in file">⌕</button>
         <button class="activity-button" id="runActivityBtn" type="button" title="Run Python" aria-label="Run Python">▷</button>
-        <button class="activity-button" id="extensionsBtn" type="button" title="Python packages" aria-label="Python packages">▦</button>
         <span class="activity-spacer"></span>
         <button class="activity-button account-button" id="aboutBtn" type="button" title="About" aria-label="About">●</button>
       </nav>
@@ -150,17 +151,6 @@
         </div>
         <div class="file-list" id="fileList" aria-label="Workspace files"></div>
         <div class="sidebar-spacer"></div>
-        <section class="package-box" aria-labelledby="packageTitle">
-          <div class="package-heading">
-            <span class="package-icon">▦</span>
-            <div><strong id="packageTitle">PYTHON PACKAGES</strong><small>Install browser-compatible packages</small></div>
-          </div>
-          <form id="packageForm" class="package-form">
-            <input id="packageName" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. requests" aria-label="Package name">
-            <button id="installBtn" type="submit">Install</button>
-          </form>
-          <p class="package-hint">Packages that require native system extensions may not run in WebAssembly.</p>
-        </section>
         <div class="storage-note"><span class="storage-icon">●</span> Stored in this browser</div>
       </aside>
 
@@ -244,22 +234,31 @@
     </dialog>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
+  <section class="site-content" aria-labelledby="guide-title">
+    <div class="site-content-inner">
+      <header class="guide-intro">
+        <p class="guide-kicker">A free Python learning and coding tool</p>
+        <h2 id="guide-title">Write and run Python in your browser</h2>
+        <p>Hussain Compiler is a browser-based Python editor for learning, experimenting, and testing small programs. Open the editor, change the example, and select <strong>Run Python</strong>. The code runs in a WebAssembly Python runtime in your browser, so there is no desktop installation or account to create.</p>
+      </header>
+      <div class="guide-grid">
+        <article class="guide-card"><h3>How to run your first program</h3><ol><li>Keep the starter example or enter <code>print("Hello, Python!")</code> in the editor.</li><li>Select <strong>Run Python</strong> or press <kbd>Ctrl</kbd> + <kbd>Enter</kbd>.</li><li>Read the result in the terminal below the editor. Programs that call <code>input()</code> can receive their answers there.</li></ol><p>Your files are kept in this browser. Use <strong>Download</strong> to save a copy on your device.</p></article>
+        <article class="guide-card"><h3>Learn Python step by step</h3><p>The built-in courses pair short explanations with runnable examples and exercises. Start with output, variables, strings, and conditions, then practice loops, lists, dictionaries, functions, and debugging. Lessons include worked examples, common mistakes, hints, and solutions.</p><p>Open the Courses activity in the editor to choose a lesson. Course progress is saved locally in your browser.</p></article>
+        <article class="guide-card"><h3>What runs in the browser</h3><p>The editor uses Pyodide, which runs Python compiled to WebAssembly. The Python standard library is available; this editor does not install third-party packages. The runtime and editor libraries are downloaded from their public CDNs, so an internet connection is needed to load them.</p><p>This tool does not create native executables or replace a full desktop Python installation.</p></article>
+        <article class="guide-card"><h3>Useful Python examples</h3><p>Try a calculation such as <code>price = 12</code>, <code>quantity = 3</code>, then <code>print(price * quantity)</code>. For a decision, use <code>if score &gt;= 50:</code> followed by an indented <code>print("Pass")</code>. For repeated work, a <code>for number in range(1, 6):</code> loop visits 1 through 5.</p><p>Use the lessons to explore each idea with a complete example and guided practice.</p></article>
+      </div>
+      <section class="guide-faq" aria-labelledby="faq-title"><h3 id="faq-title">Common questions</h3>
+        <details><summary>Do I need to install Python?</summary><p>No. Python runs through WebAssembly in a modern browser. The first load downloads the runtime, so it needs an internet connection.</p></details>
+        <details><summary>Where are my files and course progress stored?</summary><p>They are stored locally in this browser. They are not synchronized to another device or an online account. Clearing this browser's site data may remove them.</p></details>
+        <details><summary>Can I install Python packages?</summary><p>No. This editor does not include a package installer, so programs that require third-party packages may not run.</p></details>
+        <details><summary>Is this a compiler that creates executable files?</summary><p>No. It runs Python programs in the browser and lets you download your source files. It does not produce native executable binaries.</p></details>
+      </section>
+      <nav class="site-links" aria-label="Site information"><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="contact.html">Contact</a></nav>
+    </div>
+  </section>
+  <footer class="site-footer"><span>Hussain Compiler · A free browser-based Python editor</span><span>Built by Hussain</span></footer>
   <noscript>Hussain Compiler is an online Python IDE. Please enable JavaScript to run Python in your browser.</noscript>
 
-<script>
-(() => {
-  const style = document.createElement('style');
-  style.textContent = `.welcome-dialog { width:min(760px,92vw); max-height:90vh; padding:0; border:1px solid #454545; border-radius:14px; color:#eee; background:#1e1e1e; box-shadow:0 24px 80px #000b; overflow:hidden; opacity:0; transform:scale(0.92); transition:opacity .35s cubic-bezier(.2,.9,.3,1.3),transform .35s cubic-bezier(.2,.9,.3,1.3) } .welcome-dialog[open] { opacity:1; transform:scale(1) } @keyframes welcome-pop { 0% { opacity:0; transform:scale(0.92) } 100% { opacity:1; transform:scale(1) } } .welcome-dialog::backdrop { background:#000b; backdrop-filter:blur(4px) } .welcome-layout { display:flex; flex-direction:column; justify-content:center; min-height:0 } .welcome-copy { padding:38px 32px; display:flex; flex-direction:column; justify-content:center; gap:16px } .welcome-copy h2 { margin:0; font-size:28px } .welcome-copy p { color:#bbb; line-height:1.6; margin:0 } .welcome-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px } .welcome-actions a,.welcome-actions button { padding:10px 14px; border-radius:6px; border:1px solid #555; color:#eee; background:#292929; text-decoration:none; cursor:pointer; font:inherit } .welcome-actions .welcome-primary { background:#1677d2; border-color:#1677d2 } @media(max-width:620px){.welcome-copy{padding:24px}}`;
-  document.head.appendChild(style);
-  const dialog = document.createElement('dialog');
-  dialog.className = 'welcome-dialog';
-  dialog.setAttribute('aria-labelledby','welcome-title');
-  dialog.innerHTML = `<div class="welcome-layout"><div class="welcome-copy"><span>WELCOME TO</span><h2 id="welcome-title">Hussain Compiler</h2><p>Built by Hussain to make writing and running Python simple, right in your browser.</p><p>If you enjoy it, please give the project a star on GitHub. It means a lot!</p><div class="welcome-actions"><a class="welcome-primary" href="https://github.com/HussainAlsari/hussain-py-compiler" target="_blank" rel="noopener">View on GitHub</a><a href="https://github.com/HussainAlsari/hussain-py-compiler/stargazers" target="_blank" rel="noopener">★ Star the repo</a><button type="button" data-dismiss>Start Coding</button></div></div></div>`;
-  document.body.appendChild(dialog);
-  dialog.addEventListener('click', event => { if(event.target === dialog || event.target.closest('[data-dismiss]')) dialog.close(); });
-  dialog.showModal();
-})();
-</script>
 <style>
   @media (max-width: 900px) and (max-height: 520px) {
     #mainPanel { grid-template-rows: 32px minmax(90px, 1fr) 6px minmax(76px, 28%) !important; }
@@ -267,18 +266,7 @@
   }
 </style>
 
-<script>
-(() => {
- const d=document.querySelector('.welcome-dialog'); if(!d)return;
- const css=document.createElement('style'); css.textContent='.welcome-dialog[open]{display:flex;flex-direction:column;width:min(760px,calc(100vw - 30px));max-height:92vh;max-height:92dvh;padding:0;overflow:auto;animation:welcome-pop .4s cubic-bezier(.2,.9,.3,1.3) both}.welcome-dialog::backdrop{background:rgb(0 0 0 / 58%);backdrop-filter:blur(2px)}.welcome-copy{padding:24px 30px}.welcome-close{position:absolute;right:12px;top:12px;z-index:2;width:36px;height:36px;border:1px solid #777;border-radius:50%;background:#181818d9;color:white;font-size:24px;cursor:pointer}.welcome-start{min-width:130px;min-height:40px;background:#0e639c;border-color:#0e639c;color:#fff;font-weight:700;letter-spacing:.35px}.welcome-start:hover{background:#1177bb}'; document.head.append(css);
- const close=document.createElement('button'); close.className='welcome-close'; close.type='button'; close.setAttribute('aria-label','Close welcome message'); close.textContent='×'; d.prepend(close); close.addEventListener('click',()=>d.close());
- const star=d.querySelector('a[href*="stargazers"]'); if(star){star.href='https://github.com/HussainAlsari/hussain-py-compiler';star.textContent='★ Star the repo';}
- const start=d.querySelector('button[data-dismiss]'); if(start){start.textContent='START CODING';start.classList.add('welcome-start');start.addEventListener('click',()=>d.close());}
- if(d.open)d.close(); window.setTimeout(()=>d.showModal(),800);
-})();
-</script>
 
-<script>document.querySelector('.welcome-layout')?.style.setProperty('display','flex','important');document.querySelector('.welcome-layout')?.style.setProperty('flex-direction','column','important');</script>
 
 <script>
 (() => {

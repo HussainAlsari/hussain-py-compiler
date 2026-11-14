@@ -17,10 +17,9 @@ https://hussaincompiler.com/
 - Run Python programs in a Web Worker. `input()` requests appear directly in the terminal; type there and press Enter.
 - Each run gets a fresh Python namespace, so variables from an earlier run cannot shadow built-ins such as `range`.
 - Warn about likely endless `while` loops and stop code that runs continuously for 10 seconds; time spent waiting for `input()` is excluded.
-- Start the Python runtime in the background as you begin typing, with status updates while Python and imported packages load.
+- Start the Python runtime in the background as you begin typing, with status updates while it loads.
 - Multiple workspace files, file import, local browser storage, and file download.
 - Export the active Python input and terminal output together as a styled PNG image.
-- Install packages with `micropip` and load packages supported by Pyodide when imported.
 - Responsive VS Code-inspired dark interface.
 
 ## Run locally
@@ -33,9 +32,9 @@ python -m http.server 8000
 
 Open <http://localhost:8000> in a modern browser. Opening `index.html` directly as a `file://` URL is not supported because the Python worker uses ES modules.
 
-## Python and package support
+## Python support
 
-This is Python running in WebAssembly, not a native system Python installation, and it does not produce executable binaries. The standard library and packages built for Pyodide are supported. `micropip` can install additional packages.
+This is Python running in WebAssembly, not a native system Python installation, and it does not produce executable binaries. The Python standard library is available. This editor does not include a third-party package installer, so programs that depend on additional packages may not run.
 ## Search keywords
 
 - Hussain Compiler 
@@ -65,3 +64,13 @@ Each lesson also has an **In simple words** analogy, a **Line by line** walkthro
 ## Task panel
 
 Inside a lesson file, the **Task** button in the lesson bar shows or hides a panel with the question (in the course language), the expected output, and a requirements list that updates as your code satisfies each one. Run your program to view its output in the terminal. Lesson files only get a short two-line comment; enable **Full task comment in lesson files** in Editor Settings to put the whole question in the file instead.
+## Public site information and AdSense readiness
+
+The public site includes static About, Privacy, Terms, and Contact pages, linked from the home page and listed in `sitemap.xml`. The home page also includes an accessible guide to running Python, the built-in courses, WebAssembly package limits, and common questions.
+
+The Privacy Policy describes the current implementation: editor data and progress are stored in the browser, the app downloads its runtime and editor libraries from public CDNs, and the current source does not load the AdSense script or display ads. Before enabling ads, update the disclosure to match the actual ad technologies and configure an appropriate consent management platform for regions where it is required. AdSense approval is decided by Google and cannot be guaranteed by source changes alone.
+
+
+## Python package availability
+
+The site does not provide a package installer or download packages based on imports. Python code that depends on third-party packages may not run.
